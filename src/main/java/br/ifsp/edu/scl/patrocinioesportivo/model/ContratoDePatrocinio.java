@@ -49,6 +49,12 @@ public class ContratoDePatrocinio {
             );
         }
 
+        if (status != StatusContrato.ATIVO) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas contratos ativos podem ser encerrados."
+            );
+        }
+
         BigDecimal valorParcelasPendentes = parcelas.stream()
                 .filter(parcela -> !parcela.isPaga())
                 .map(ParcelaDePagamento::getValor)
