@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;

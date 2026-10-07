@@ -1,5 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
+
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
@@ -24,6 +26,12 @@ public class ContratoDePatrocinio {
     }
 
     public void encerrar() {
+        if (status == StatusContrato.ENCERRADO) {
+            throw new OperacaoRedundanteError(
+                    "O contrato já está encerrado."
+            );
+        }
+
         BigDecimal valorParcelasPendentes = parcelas.stream()
                 .filter(parcela -> !parcela.isPaga())
                 .map(ParcelaDePagamento::getValor)
