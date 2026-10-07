@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.IdentificacaoObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.service.CancelarPropostaService;

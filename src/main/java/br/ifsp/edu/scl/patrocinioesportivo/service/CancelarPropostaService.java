@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.IdentificacaoObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import org.springframework.stereotype.Service;
@@ -15,6 +16,12 @@ public class CancelarPropostaService {
     }
 
     public void cancelar(Long propostaId) {
+        if (propostaId == null) {
+            throw new IdentificacaoObrigatoriaError(
+                    "A identificação da proposta é obrigatória."
+            );
+        }
+
         ContratoDePatrocinio proposta = repository.buscarPorId(propostaId)
                 .orElseThrow(() ->
                         new ContratoInexistenteError("Proposta não encontrada."));
