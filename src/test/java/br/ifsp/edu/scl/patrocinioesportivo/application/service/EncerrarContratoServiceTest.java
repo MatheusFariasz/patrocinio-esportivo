@@ -2,6 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
+import br.ifsp.edu.scl.patrocinioesportivo.service.EncerrarContratoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -29,7 +30,7 @@ class EncerrarContratoServiceTest {
     @Tag("TDD")
     @DisplayName("#35 - deve lançar erro ao tentar encerrar contrato inexistente")
     void deveLancarErroAoTentarEncerrarContratoInexistente() {
-        Long contratoId = 1L;
+        Long contratoId = (Long) 1L;
 
         when(repository.buscarPorId(contratoId))
                 .thenReturn(Optional.empty());
