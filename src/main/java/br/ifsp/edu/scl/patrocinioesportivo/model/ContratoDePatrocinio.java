@@ -26,6 +26,10 @@ public class ContratoDePatrocinio {
         parcelas.add(parcela);
     }
 
+    public List<ParcelaDePagamento> getParcelas() {
+        return parcelas;
+    }
+
     public void cancelar() {
         if (status == StatusContrato.CANCELADO) {
             throw new OperacaoRedundanteError(

@@ -78,8 +78,8 @@ class ConsultarContratoServiceTest {
         assertThat(resultado.getStatus())
                 .isEqualTo(StatusContrato.ENCERRADO);
 
-        assertThat(resultado.getParcelas())
-                .hasSize(1);
+        assertThat(resultado.getParcelas().size())
+                .isEqualTo(1);
 
         assertThat(resultado.getParcelas().get(0).isPaga())
                 .isTrue();
