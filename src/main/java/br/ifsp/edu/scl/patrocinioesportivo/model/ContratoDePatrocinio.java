@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -23,6 +24,22 @@ public class ContratoDePatrocinio {
 
     public void adicionarParcela(ParcelaDePagamento parcela) {
         parcelas.add(parcela);
+    }
+
+    public void cancelar() {
+        if (status == StatusContrato.CANCELADO) {
+            throw new OperacaoRedundanteError(
+                    "A proposta já está cancelada."
+            );
+        }
+
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas propostas pendentes podem ser canceladas."
+            );
+        }
+
+        status = StatusContrato.CANCELADO;
     }
 
     public void encerrar() {
