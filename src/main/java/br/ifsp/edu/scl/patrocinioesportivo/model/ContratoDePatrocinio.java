@@ -49,6 +49,13 @@ public class ContratoDePatrocinio {
             );
         }
 
+        if (status != StatusContrato.ATIVO
+                && status != StatusContrato.EM_RISCO) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas contratos ativos ou em risco podem ser encerrados."
+            );
+        }
+
         BigDecimal valorParcelasPendentes = parcelas.stream()
                 .filter(parcela -> !parcela.isPaga())
                 .map(ParcelaDePagamento::getValor)
