@@ -1,12 +1,15 @@
 package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 
@@ -60,5 +63,24 @@ class ContratoDePatrocinioTest {
 
         assertThat(contrato.getStatus())
                 .isEqualTo(StatusContrato.ENCERRADO);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"PENDENTE", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#37 - não deve encerrar contrato com status não permitido")
+    void naoDeveEncerrarContratoComStatusNaoPermitido(StatusContrato status) {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        assertThatThrownBy(contrato::encerrar)
+                .isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(status);
     }
 }
