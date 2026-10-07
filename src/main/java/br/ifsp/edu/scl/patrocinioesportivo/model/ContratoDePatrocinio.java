@@ -49,9 +49,10 @@ public class ContratoDePatrocinio {
             );
         }
 
-        if (status != StatusContrato.ATIVO) {
+        if (status != StatusContrato.ATIVO
+                && status != StatusContrato.EM_RISCO) {
             throw new TransicaoDeStatusInvalidaError(
-                    "Apenas contratos ativos podem ser encerrados."
+                    "Apenas contratos ativos ou em risco podem ser encerrados."
             );
         }
 
