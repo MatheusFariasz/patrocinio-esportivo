@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.service.CancelarPropostaService;
 import org.junit.jupiter.api.DisplayName;
@@ -71,5 +72,29 @@ class CancelarPropostaServiceTest {
 
         assertThat(proposta.getStatus())
                 .isEqualTo(status);
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#5 - deve lançar erro ao tentar cancelar proposta já cancelada")
+    void deveLancarErroAoTentarCancelarPropostaJaCancelada() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.CANCELADO);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(proposta));
+
+        CancelarPropostaService service =
+                new CancelarPropostaService(repository);
+
+        assertThatThrownBy(() -> service.cancelar(1L))
+                .isInstanceOf(OperacaoRedundanteError.class);
+
+        assertThat(proposta.getStatus())
+                .isEqualTo(StatusContrato.CANCELADO);
     }
 }
