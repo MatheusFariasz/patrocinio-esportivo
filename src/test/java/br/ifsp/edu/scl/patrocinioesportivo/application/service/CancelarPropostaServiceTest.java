@@ -116,4 +116,19 @@ class CancelarPropostaServiceTest {
         assertThatThrownBy(() -> service.cancelar(1L))
                 .isInstanceOf(ContratoInexistenteError.class);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#7 - deve lançar erro ao cancelar proposta sem identificação")
+    void deveLancarErroAoCancelarPropostaSemIdentificacao() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        CancelarPropostaService service =
+                new CancelarPropostaService(repository);
+
+        assertThatThrownBy(() -> service.cancelar(null))
+                .isInstanceOf(IdentificacaoObrigatoriaError.class);
+    }
 }
