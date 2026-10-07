@@ -27,6 +27,12 @@ public class ContratoDePatrocinio {
     }
 
     public void cancelar() {
+        if (status == StatusContrato.CANCELADO) {
+            throw new OperacaoRedundanteError(
+                    "A proposta já está cancelada."
+            );
+        }
+
         if (status != StatusContrato.PENDENTE) {
             throw new TransicaoDeStatusInvalidaError(
                     "Apenas propostas pendentes podem ser canceladas."
