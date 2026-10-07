@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 class ContratoDePatrocinioTest {
 
@@ -43,5 +44,20 @@ class ContratoDePatrocinioTest {
 
         assertThat(contrato.getMultaRescisoria())
                 .isEqualByComparingTo(new BigDecimal("600.00"));
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#33 - não deve encerrar contrato já encerrado")
+    void naoDeveEncerrarContratoJaEncerrado() {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ENCERRADO);
+
+        assertThatThrownBy(contrato::encerrar)
+                .isInstanceOf(OperacaoRedundanteError.class);
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(StatusContrato.ENCERRADO);
     }
 }
