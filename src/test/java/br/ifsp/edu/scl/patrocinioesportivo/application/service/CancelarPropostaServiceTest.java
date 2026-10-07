@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.service.CancelarPropostaService;
@@ -96,5 +97,23 @@ class CancelarPropostaServiceTest {
 
         assertThat(proposta.getStatus())
                 .isEqualTo(StatusContrato.CANCELADO);
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#6 - deve lançar erro ao tentar cancelar proposta inexistente")
+    void deveLancarErroAoTentarCancelarPropostaInexistente() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.empty());
+
+        CancelarPropostaService service =
+                new CancelarPropostaService(repository);
+
+        assertThatThrownBy(() -> service.cancelar(1L))
+                .isInstanceOf(ContratoInexistenteError.class);
     }
 }
