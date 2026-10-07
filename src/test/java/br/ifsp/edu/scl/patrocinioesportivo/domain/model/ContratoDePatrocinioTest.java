@@ -109,4 +109,33 @@ class ContratoDePatrocinioTest {
         assertThat(contrato.getMultaRescisoria())
                 .isEqualByComparingTo(new BigDecimal("600.00"));
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#61 - deve calcular multa zero ao encerrar contrato ATIVO sem parcelas pendentes")
+    void deveCalcularMultaZeroAoEncerrarContratoAtivoSemParcelasPendentes() {
+        ParcelaDePagamento parcela1 =
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"));
+
+        ParcelaDePagamento parcela2 =
+                new ParcelaDePagamento(2, new BigDecimal("2000.00"));
+
+        parcela1.registrarPagamento();
+        parcela2.registrarPagamento();
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        contrato.adicionarParcela(parcela1);
+        contrato.adicionarParcela(parcela2);
+
+        contrato.encerrar();
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(StatusContrato.ENCERRADO);
+
+        assertThat(contrato.getMultaRescisoria())
+                .isEqualByComparingTo(BigDecimal.ZERO);
+    }
 }
