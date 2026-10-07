@@ -1,10 +1,18 @@
 package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
+import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
+import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
-public class ContratoDePatrocinioTest {
+import java.math.BigDecimal;
+
+import static org.assertj.core.api.Assertions.assertThat;
+
+class ContratoDePatrocinioTest {
+
     @Test
     @Tag("UnitTest")
     @Tag("TDD")
