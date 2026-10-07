@@ -83,4 +83,30 @@ class ContratoDePatrocinioTest {
         assertThat(contrato.getStatus())
                 .isEqualTo(status);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#58 - deve encerrar contrato EM_RISCO com multa de 20% das parcelas pendentes")
+    void deveEncerrarContratoEmRiscoComMultaDe20PorCentoDasParcelasPendentes() {
+        ParcelaDePagamento parcela1 =
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"));
+
+        ParcelaDePagamento parcela2 =
+                new ParcelaDePagamento(2, new BigDecimal("2000.00"));
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.EM_RISCO);
+
+        contrato.adicionarParcela(parcela1);
+        contrato.adicionarParcela(parcela2);
+
+        contrato.encerrar();
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(StatusContrato.ENCERRADO);
+
+        assertThat(contrato.getMultaRescisoria())
+                .isEqualByComparingTo(new BigDecimal("600.00"));
+    }
 }
