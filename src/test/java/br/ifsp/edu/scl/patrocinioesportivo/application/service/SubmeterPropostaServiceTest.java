@@ -11,6 +11,9 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.SubmeterPropostaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
+import org.junit.jupiter.params.provider.NullSource;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
@@ -23,6 +26,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.verifyNoInteractions;
 
 @ExtendWith(MockitoExtension.class)
 class SubmeterPropostaServiceTest {
@@ -126,4 +130,35 @@ class SubmeterPropostaServiceTest {
                 .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
                         .isEqualTo("ClubeInexistenteError"));
     }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(strings = {"0", "-100.00"})
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#26 - deve lancar erro para valor invalido")
+    void deveLancarErroAoSubmeterPropostaComValorInvalido(BigDecimal valor) {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                valor,
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("ValorInvalidoError"));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
 }
