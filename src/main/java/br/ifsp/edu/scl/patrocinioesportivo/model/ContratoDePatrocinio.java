@@ -5,6 +5,8 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaEr
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 
 import java.math.BigDecimal;
+import java.math.RoundingMode;
+import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -115,6 +117,26 @@ public class ContratoDePatrocinio {
         exposicaoAcumulada = exposicaoAcumulada.add(valor);
     }
 
+    public void aprovar() {
+        status = StatusContrato.ATIVO;
+        gerarParcelas();
+    }
+
+    private void gerarParcelas() {
+        long quantidade = Math.max(1, ChronoUnit.MONTHS.between(
+                periodoContratual.inicio(),
+                periodoContratual.termino()
+        ));
+
+        BigDecimal valorDaParcela = valorTotal.divide(
+                BigDecimal.valueOf(quantidade), 2, RoundingMode.DOWN
+        );
+
+        for (int numero = 1; numero <= quantidade; numero++) {
+            adicionarParcela(new ParcelaDePagamento(numero, valorDaParcela));
+        }
+    }
+
     public BigDecimal getExposicaoAcumulada() {
         return exposicaoAcumulada;
     }
@@ -151,6 +173,4 @@ public class ContratoDePatrocinio {
         return valorTotal;
     }
 
-    public void aprovar() {
-    }
 }
