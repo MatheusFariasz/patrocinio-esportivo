@@ -63,6 +63,18 @@ class PeriodoContratualTest {
         assertThat(primeiro.hashCode()).isEqualTo(segundo.hashCode());
     }
 
+    @Test
+    @DisplayName("#19 - deve representar um período histórico com datas válidas")
+    void deveRepresentarPeriodoHistorico() {
+        LocalDate inicio = LocalDate.now().minusMonths(3);
+        LocalDate termino = LocalDate.now().minusDays(1);
+
+        PeriodoContratual periodo = new PeriodoContratual(inicio, termino);
+
+        assertThat(periodo.inicio()).isEqualTo(inicio);
+        assertThat(periodo.termino()).isEqualTo(termino);
+    }
+
     @ParameterizedTest
     @MethodSource("periodosInvalidos")
     @DisplayName("#27 e #53 - não deve criar um período contratual inválido")
@@ -77,8 +89,7 @@ class PeriodoContratualTest {
                 Arguments.of(null, hoje.plusMonths(3)),
                 Arguments.of(hoje.plusDays(1), null),
                 Arguments.of(hoje.plusDays(1), hoje.plusDays(1)),
-                Arguments.of(hoje.plusDays(10), hoje.plusDays(1)),
-                Arguments.of(hoje.minusDays(10), hoje.minusDays(1))
+                Arguments.of(hoje.plusDays(10), hoje.plusDays(1))
         );
     }
 }

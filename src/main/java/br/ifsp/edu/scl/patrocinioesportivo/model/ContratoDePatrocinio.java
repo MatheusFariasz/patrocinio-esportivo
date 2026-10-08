@@ -14,10 +14,22 @@ public class ContratoDePatrocinio {
 
     private Long id;
     private StatusContrato status;
+    private final PeriodoContratual periodoContratual;
+    private final MetaContratual metaContratual;
     private final List<ParcelaDePagamento> parcelas;
     private BigDecimal multaRescisoria;
 
     public ContratoDePatrocinio(StatusContrato status) {
+        this(status, null, null);
+    }
+
+    public ContratoDePatrocinio(
+            StatusContrato status,
+            PeriodoContratual periodoContratual,
+            MetaContratual metaContratual
+    ) {
+        this.periodoContratual = periodoContratual;
+        this.metaContratual = metaContratual;
         this.status = status;
         this.parcelas = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
@@ -70,6 +82,14 @@ public class ContratoDePatrocinio {
                 .multiply(PERCENTUAL_MULTA);
 
         status = StatusContrato.ENCERRADO;
+    }
+
+    public PeriodoContratual getPeriodoContratual() {
+        return periodoContratual;
+    }
+
+    public MetaContratual getMetaContratual() {
+        return metaContratual;
     }
 
     public StatusContrato getStatus() {
