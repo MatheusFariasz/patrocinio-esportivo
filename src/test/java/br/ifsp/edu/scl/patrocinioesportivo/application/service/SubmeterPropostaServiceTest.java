@@ -83,6 +83,14 @@ class SubmeterPropostaServiceTest {
 
         assertThat(resultado.getParcelas())
                 .isEmpty();
+        assertThat(resultado.getPeriodoContratual().inicio())
+                .isEqualTo(LocalDate.now().plusDays(1));
+
+        assertThat(resultado.getPeriodoContratual().termino())
+                .isEqualTo(LocalDate.now().plusMonths(3));
+
+        assertThat(resultado.getMetaContratual().valor())
+                .isEqualByComparingTo("500");
     }
 
     @Test
