@@ -6,6 +6,9 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaObrigatoriaError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeObrigatorioError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorObrigatorioError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PartesIguaisError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -41,6 +44,18 @@ public class SubmeterPropostaService {
             LocalDate termino,
             BigDecimal meta
     ) {
+        if (clubeId == null) {
+            throw new ClubeObrigatorioError("O identificador do clube é obrigatório.");
+        }
+
+        if (patrocinadorId == null) {
+            throw new PatrocinadorObrigatorioError("O identificador do patrocinador é obrigatório.");
+        }
+
+        if (clubeId.equals(patrocinadorId)) {
+            throw new PartesIguaisError("Clube e patrocinador devem ser partes diferentes.");
+        }
+
         if (!clubeRepository.existePorId(clubeId)) {
             throw new ClubeInexistenteError("Clube não encontrado.");
         }
