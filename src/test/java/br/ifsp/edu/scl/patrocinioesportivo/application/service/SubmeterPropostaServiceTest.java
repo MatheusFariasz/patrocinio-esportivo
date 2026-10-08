@@ -20,6 +20,7 @@ import java.math.BigDecimal;
 import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -75,5 +76,31 @@ class SubmeterPropostaServiceTest {
 
         assertThat(resultado.getParcelas())
                 .isEmpty();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#21 - deve lançar erro ao submeter proposta com patrocinador inexistente")
+    void deveLancarErroAoSubmeterPropostaComPatrocinadorInexistente() {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("PatrocinadorInexistenteError"));
     }
 }
