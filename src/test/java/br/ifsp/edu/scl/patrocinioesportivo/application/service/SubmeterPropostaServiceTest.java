@@ -103,4 +103,27 @@ class SubmeterPropostaServiceTest {
                 .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
                         .isEqualTo("PatrocinadorInexistenteError"));
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#25 - deve lançar erro ao submeter proposta com clube inexistente")
+    void deveLancarErroAoSubmeterPropostaComClubeInexistente() {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(false);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("ClubeInexistenteError"));
+    }
 }
