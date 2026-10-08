@@ -12,6 +12,7 @@ public class ContratoDePatrocinio {
     private static final BigDecimal PERCENTUAL_MULTA =
             new BigDecimal("0.20");
 
+    private Long id;
     private StatusContrato status;
     private final List<ParcelaDePagamento> parcelas;
     private BigDecimal multaRescisoria;
@@ -77,5 +78,13 @@ public class ContratoDePatrocinio {
 
     public BigDecimal getMultaRescisoria() {
         return multaRescisoria;
+    }
+
+    public void definirId(Long id) {
+        this.id = id;
+    }
+
+    public Long getId() {
+        return id;
     }
 }

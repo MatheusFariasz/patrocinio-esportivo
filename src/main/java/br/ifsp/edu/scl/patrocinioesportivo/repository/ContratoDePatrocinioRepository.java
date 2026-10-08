@@ -7,4 +7,6 @@ import java.util.Optional;
 public interface ContratoDePatrocinioRepository {
 
     Optional<ContratoDePatrocinio> buscarPorId(Long id);
+
+    ContratoDePatrocinio salvar(ContratoDePatrocinio contrato);
 }
