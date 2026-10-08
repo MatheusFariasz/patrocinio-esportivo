@@ -132,8 +132,16 @@ public class ContratoDePatrocinio {
                 BigDecimal.valueOf(quantidade), 2, RoundingMode.DOWN
         );
 
+        BigDecimal somaDasAnteriores = valorDaParcela.multiply(
+                BigDecimal.valueOf(quantidade - 1)
+        );
+
         for (int numero = 1; numero <= quantidade; numero++) {
-            adicionarParcela(new ParcelaDePagamento(numero, valorDaParcela));
+            BigDecimal valor = numero == quantidade
+                    ? valorTotal.subtract(somaDasAnteriores)
+                    : valorDaParcela;
+
+            adicionarParcela(new ParcelaDePagamento(numero, valor));
         }
     }
 
