@@ -163,4 +163,34 @@ class ContratoDePatrocinioTest {
         assertThat(proposta.getParcelas())
                 .hasSize(3);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#57 - a soma das parcelas deve ser igual ao valor total, com o resto na última parcela")
+    void aSomaDasParcelasDeveSerIgualAoValorTotalComORestoNaUltimaParcela() {
+        PeriodoContratual periodo =
+                new PeriodoContratual(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1));
+
+        MetaContratual meta =
+                new MetaContratual(new BigDecimal("1000"));
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("100.00"));
+
+        proposta.aprovar();
+
+        BigDecimal soma = proposta.getParcelas().stream()
+                .map(ParcelaDePagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertThat(soma)
+                .isEqualByComparingTo("100.00");
+
+        assertThat(proposta.getParcelas().get(0).getValor())
+                .isEqualByComparingTo("33.33");
+
+        assertThat(proposta.getParcelas().get(2).getValor())
+                .isEqualByComparingTo("33.34");
+    }
 }
