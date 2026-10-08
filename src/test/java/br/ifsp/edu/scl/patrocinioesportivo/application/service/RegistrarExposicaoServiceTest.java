@@ -5,6 +5,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.model.MetaContratual;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 
+import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarExposicaoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.params.ParameterizedTest;
@@ -26,7 +27,7 @@ class RegistrarExposicaoServiceTest {
     )
     @Tag("UnitTest")
     @Tag("TDD")
-    @DisplayName("#NOVO-19 - deve registrar exposição em contrato ativo ou em risco")
+    @DisplayName("#65 - deve registrar exposição em contrato ativo ou em risco")
     void deveRegistrarExposicaoEmContratoValido(StatusContrato status) {
         ContratoDePatrocinioRepository repository =
                 mock(ContratoDePatrocinioRepository.class);

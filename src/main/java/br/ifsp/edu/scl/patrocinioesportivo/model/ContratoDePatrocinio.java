@@ -18,6 +18,7 @@ public class ContratoDePatrocinio {
     private final MetaContratual metaContratual;
     private final List<ParcelaDePagamento> parcelas;
     private BigDecimal multaRescisoria;
+    private BigDecimal exposicaoAcumulada;
 
     public ContratoDePatrocinio(StatusContrato status) {
         this(status, null, null);
@@ -33,6 +34,7 @@ public class ContratoDePatrocinio {
         this.status = status;
         this.parcelas = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
+        this.exposicaoAcumulada = BigDecimal.ZERO;
     }
 
     public void adicionarParcela(ParcelaDePagamento parcela) {
@@ -82,6 +84,25 @@ public class ContratoDePatrocinio {
                 .multiply(PERCENTUAL_MULTA);
 
         status = StatusContrato.ENCERRADO;
+    }
+
+    public void registrarExposicao(BigDecimal valor) {
+        if (status != StatusContrato.ATIVO
+                && status != StatusContrato.EM_RISCO) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "O contrato não permite registrar exposição midiática."
+            );
+        }
+
+        exposicaoAcumulada = exposicaoAcumulada.add(valor);
+    }
+
+    public BigDecimal getExposicaoAcumulada() {
+        return exposicaoAcumulada;
+    }
+
+    public boolean metaFoiAtingida() {
+        return exposicaoAcumulada.compareTo(metaContratual.valor()) >= 0;
     }
 
     public PeriodoContratual getPeriodoContratual() {
