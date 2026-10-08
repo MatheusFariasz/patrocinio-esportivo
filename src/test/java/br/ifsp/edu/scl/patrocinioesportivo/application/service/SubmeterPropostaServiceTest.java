@@ -11,6 +11,8 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.SubmeterPropostaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.provider.MethodSource;
+import org.junit.jupiter.params.provider.Arguments;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
 import org.junit.jupiter.params.provider.NullSource;
@@ -21,6 +23,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -219,4 +222,36 @@ class SubmeterPropostaServiceTest {
         verifyNoInteractions(contratoRepository);
     }
 
+
+    @ParameterizedTest
+    @MethodSource("partesInvalidas")
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#52 - deve lancar erro para identificadores obrigatorios e partes iguais")
+    void deveLancarErroAoSubmeterPropostaComPartesInvalidas(Long clubeId, Long patrocinadorId, String erroEsperado) {
+
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                clubeId,
+                patrocinadorId,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo(erroEsperado));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
+    static Stream<Arguments> partesInvalidas() {
+        return Stream.of(
+                Arguments.of(null, 2L, "ClubeObrigatorioError"),
+                Arguments.of(1L, null, "PatrocinadorObrigatorioError"),
+                Arguments.of(1L, 1L, "PartesIguaisError")
+        );
+    }
 }
