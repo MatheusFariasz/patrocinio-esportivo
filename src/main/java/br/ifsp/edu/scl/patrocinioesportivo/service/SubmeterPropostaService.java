@@ -5,13 +5,13 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorInexistenteErro
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
-import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeObrigatorioError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorObrigatorioError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PartesIguaisError;
-import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
+import br.ifsp.edu.scl.patrocinioesportivo.model.PeriodoContratual;
+import br.ifsp.edu.scl.patrocinioesportivo.model.MetaContratual;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ClubeRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.PatrocinadorRepository;
@@ -69,22 +69,18 @@ public class SubmeterPropostaService {
             throw new ValorInvalidoError("O valor do patrocínio deve ser maior que zero.");
         }
 
-        if (inicio == null || termino == null
-                || !termino.isAfter(inicio)
-                || termino.isBefore(LocalDate.now())) {
+        PeriodoContratual periodoContratual = new PeriodoContratual(inicio, termino);
+        if (periodoContratual.termino().isBefore(LocalDate.now())) {
             throw new PeriodoInvalidoError("O período contratual é inválido.");
         }
 
-        if (meta == null) {
-            throw new MetaObrigatoriaError("A meta contratual é obrigatória.");
-        }
+        MetaContratual metaContratual = new MetaContratual(meta);
 
-        if (meta.compareTo(BigDecimal.ZERO) <= 0) {
-            throw new MetaInvalidaError("A meta contratual deve ser maior que zero.");
-        }
-
-        ContratoDePatrocinio proposta =
-                new ContratoDePatrocinio(StatusContrato.PENDENTE);
+        ContratoDePatrocinio proposta = new ContratoDePatrocinio(
+                StatusContrato.PENDENTE,
+                periodoContratual,
+                metaContratual
+        );
 
         return contratoRepository.salvar(proposta);
     }
