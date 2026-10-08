@@ -68,7 +68,9 @@ public class SubmeterPropostaService {
             throw new ValorInvalidoError("O valor do patrocínio deve ser maior que zero.");
         }
 
-        if (termino.isBefore(inicio)) {
+        if (inicio == null || termino == null
+                || !termino.isAfter(inicio)
+                || termino.isBefore(LocalDate.now())) {
             throw new PeriodoInvalidoError("O período contratual é inválido.");
         }
 
