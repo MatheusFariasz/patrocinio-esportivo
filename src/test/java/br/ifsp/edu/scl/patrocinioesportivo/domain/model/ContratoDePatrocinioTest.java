@@ -2,9 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
-import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
-import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
-import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
+import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -12,6 +10,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -137,5 +136,90 @@ class ContratoDePatrocinioTest {
 
         assertThat(contrato.getMultaRescisoria())
                 .isEqualByComparingTo(BigDecimal.ZERO);
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#30 - deve aprovar proposta pendente, ativar o contrato e gerar as parcelas")
+    void deveAprovarPropostaPendenteAtivandoOContratoEGerandoAsParcelas() {
+        PeriodoContratual periodo =
+                new PeriodoContratual(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1));
+
+        MetaContratual meta =
+                new MetaContratual(new BigDecimal("1000"));
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("900.00"));
+
+        proposta.aprovar();
+
+        assertThat(proposta.getStatus())
+                .isEqualTo(StatusContrato.ATIVO);
+
+        assertThat(proposta.getPeriodoContratual())
+                .isEqualTo(periodo);
+
+        assertThat(proposta.getParcelas())
+                .hasSize(3);
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#57 - a soma das parcelas deve ser igual ao valor total, com o resto na última parcela")
+    void aSomaDasParcelasDeveSerIgualAoValorTotalComORestoNaUltimaParcela() {
+        PeriodoContratual periodo =
+                new PeriodoContratual(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1));
+
+        MetaContratual meta =
+                new MetaContratual(new BigDecimal("1000"));
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("100.00"));
+
+        proposta.aprovar();
+
+        BigDecimal soma = proposta.getParcelas().stream()
+                .map(ParcelaDePagamento::getValor)
+                .reduce(BigDecimal.ZERO, BigDecimal::add);
+
+        assertThat(soma)
+                .isEqualByComparingTo("100.00");
+
+        assertThat(proposta.getParcelas().get(0).getValor())
+                .isEqualByComparingTo("33.33");
+
+        assertThat(proposta.getParcelas().get(2).getValor())
+                .isEqualByComparingTo("33.34");
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#59 - as parcelas devem ser numeradas, começar não pagas e vencer dentro do período")
+    void asParcelasDevemSerNumeradasComecarNaoPagasEVencerDentroDoPeriodo() {
+        PeriodoContratual periodo =
+                new PeriodoContratual(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1));
+
+        MetaContratual meta =
+                new MetaContratual(new BigDecimal("1000"));
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("900.00"));
+
+        proposta.aprovar();
+
+        assertThat(proposta.getParcelas())
+                .extracting(ParcelaDePagamento::getNumero)
+                .containsExactly(1, 2, 3);
+
+        assertThat(proposta.getParcelas())
+                .noneMatch(ParcelaDePagamento::isPaga);
+
+        assertThat(proposta.getParcelas())
+                .extracting(ParcelaDePagamento::getVencimento)
+                .allSatisfy(vencimento -> assertThat(vencimento)
+                        .isBetween(periodo.inicio(), periodo.termino()));
     }
 }

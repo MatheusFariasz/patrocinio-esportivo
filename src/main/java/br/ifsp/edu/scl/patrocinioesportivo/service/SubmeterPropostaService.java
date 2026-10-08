@@ -79,7 +79,8 @@ public class SubmeterPropostaService {
         ContratoDePatrocinio proposta = new ContratoDePatrocinio(
                 StatusContrato.PENDENTE,
                 periodoContratual,
-                metaContratual
+                metaContratual,
+                valor
         );
 
         return contratoRepository.salvar(proposta);
