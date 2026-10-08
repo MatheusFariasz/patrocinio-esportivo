@@ -293,4 +293,34 @@ class SubmeterPropostaServiceTest {
                 Arguments.of(hoje.minusDays(10), hoje.minusDays(1))
         );
     }
+
+    @ParameterizedTest
+    @ValueSource(strings = {"0", "-500"})
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#54 - deve lancar erro para meta menor ou igual a zero")
+    void deveLancarErroAoSubmeterPropostaComMetaInvalida(BigDecimal meta) {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                meta
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("MetaInvalidaError"));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
 }
