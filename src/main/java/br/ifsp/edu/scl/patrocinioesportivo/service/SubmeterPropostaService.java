@@ -5,6 +5,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorInexistenteErro
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -54,6 +55,10 @@ public class SubmeterPropostaService {
 
         if (termino.isBefore(inicio)) {
             throw new PeriodoInvalidoError("O período contratual é inválido.");
+        }
+
+        if (meta == null) {
+            throw new MetaObrigatoriaError("A meta contratual é obrigatória.");
         }
 
         ContratoDePatrocinio proposta =
