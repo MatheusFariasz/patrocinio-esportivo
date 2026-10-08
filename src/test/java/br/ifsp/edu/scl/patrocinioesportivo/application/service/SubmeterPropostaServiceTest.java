@@ -161,4 +161,33 @@ class SubmeterPropostaServiceTest {
         verifyNoInteractions(contratoRepository);
     }
 
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#27 - deve lancar erro para periodo com termino anterior ao inicio")
+    void deveLancarErroAoSubmeterPropostaComTerminoAnteriorAoInicio() {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(10),
+                LocalDate.now().plusDays(1),
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("PeriodoInvalidoError"));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
 }
