@@ -20,6 +20,7 @@ public class ContratoDePatrocinio {
     private final List<ParcelaDePagamento> parcelas;
     private BigDecimal multaRescisoria;
     private BigDecimal exposicaoAcumulada;
+    private final BigDecimal valorTotal;
 
     public ContratoDePatrocinio(StatusContrato status) {
         this(status, null, null);
@@ -30,8 +31,18 @@ public class ContratoDePatrocinio {
             PeriodoContratual periodoContratual,
             MetaContratual metaContratual
     ) {
+        this(status, periodoContratual, metaContratual, null);
+    }
+
+    public ContratoDePatrocinio(
+            StatusContrato status,
+            PeriodoContratual periodoContratual,
+            MetaContratual metaContratual,
+            BigDecimal valorTotal
+    ) {
         this.periodoContratual = periodoContratual;
         this.metaContratual = metaContratual;
+        this.valorTotal = valorTotal;
         this.status = status;
         this.parcelas = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
@@ -134,5 +145,9 @@ public class ContratoDePatrocinio {
 
     public Long getId() {
         return id;
+    }
+
+    public BigDecimal getValorTotal() {
+        return valorTotal;
     }
 }
