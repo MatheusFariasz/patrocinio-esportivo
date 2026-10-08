@@ -120,36 +120,9 @@ public class ContratoDePatrocinio {
 
     public void aprovar() {
         status = StatusContrato.ATIVO;
-        gerarParcelas();
-    }
 
-    private void gerarParcelas() {
-        long quantidade = Math.max(1, ChronoUnit.MONTHS.between(
-                periodoContratual.inicio(),
-                periodoContratual.termino()
-        ));
-
-        BigDecimal valorDaParcela = valorTotal.divide(
-                BigDecimal.valueOf(quantidade), 2, RoundingMode.DOWN
-        );
-
-        BigDecimal somaDasAnteriores = valorDaParcela.multiply(
-                BigDecimal.valueOf(quantidade - 1)
-        );
-
-        for (int numero = 1; numero <= quantidade; numero++) {
-            BigDecimal valor = numero == quantidade
-                    ? valorTotal.subtract(somaDasAnteriores)
-                    : valorDaParcela;
-
-            LocalDate vencimento = periodoContratual.inicio().plusMonths(numero);
-
-            if (vencimento.isAfter(periodoContratual.termino())) {
-                vencimento = periodoContratual.termino();
-            }
-
-            adicionarParcela(new ParcelaDePagamento(numero, valor, vencimento));
-        }
+        GeradorDeParcelas.gerar(valorTotal, periodoContratual)
+                .forEach(this::adicionarParcela);
     }
 
     public BigDecimal getExposicaoAcumulada() {
