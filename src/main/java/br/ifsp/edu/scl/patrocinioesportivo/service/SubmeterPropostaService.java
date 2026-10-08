@@ -3,6 +3,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -44,6 +45,10 @@ public class SubmeterPropostaService {
 
         if (!patrocinadorRepository.existePorId(patrocinadorId)) {
             throw new PatrocinadorInexistenteError("Patrocinador não encontrado.");
+        }
+
+        if (valor == null || valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValorInvalidoError("O valor do patrocínio deve ser maior que zero.");
         }
 
         ContratoDePatrocinio proposta =
