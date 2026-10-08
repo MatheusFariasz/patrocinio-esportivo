@@ -9,6 +9,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeObrigatorioError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorObrigatorioError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PartesIguaisError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.MetaInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -76,6 +77,10 @@ public class SubmeterPropostaService {
 
         if (meta == null) {
             throw new MetaObrigatoriaError("A meta contratual é obrigatória.");
+        }
+
+        if (meta.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new MetaInvalidaError("A meta contratual deve ser maior que zero.");
         }
 
         ContratoDePatrocinio proposta =
