@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.MetaContratual;
@@ -91,5 +92,38 @@ class RegistrarExposicaoServiceTest {
                 service.registrar(1L, new BigDecimal(valor))
         )
                 .isInstanceOf(ValorInvalidoError.class);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"PENDENTE", "ENCERRADO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#70 - não deve registrar exposição em status inválido")
+    void naoDeveRegistrarExposicaoEmStatusInvalido(StatusContrato status) {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(
+                        status,
+                        null,
+                        new MetaContratual(new BigDecimal("1000"))
+                );
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        RegistrarExposicaoService service =
+                new RegistrarExposicaoService(repository);
+
+        assertThatThrownBy(() ->
+                service.registrar(1L, new BigDecimal("500"))
+        ).isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(contrato.getExposicaoAcumulada())
+                .isEqualByComparingTo("0");
     }
 }
