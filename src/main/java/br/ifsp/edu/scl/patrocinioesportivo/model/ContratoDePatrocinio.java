@@ -6,6 +6,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
+import java.time.LocalDate;
 import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
@@ -141,7 +142,13 @@ public class ContratoDePatrocinio {
                     ? valorTotal.subtract(somaDasAnteriores)
                     : valorDaParcela;
 
-            adicionarParcela(new ParcelaDePagamento(numero, valor));
+            LocalDate vencimento = periodoContratual.inicio().plusMonths(numero);
+
+            if (vencimento.isAfter(periodoContratual.termino())) {
+                vencimento = periodoContratual.termino();
+            }
+
+            adicionarParcela(new ParcelaDePagamento(numero, valor, vencimento));
         }
     }
 
