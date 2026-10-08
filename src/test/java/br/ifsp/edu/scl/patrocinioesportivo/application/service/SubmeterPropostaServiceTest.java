@@ -331,4 +331,33 @@ class SubmeterPropostaServiceTest {
         verifyNoInteractions(contratoRepository);
     }
 
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#20 - deve guardar o valor total na proposta criada")
+    void deveGuardarOValorTotalNaPropostaCriada() {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        when(contratoRepository.salvar(any(ContratoDePatrocinio.class)))
+                .thenAnswer(invocation -> invocation.getArgument(0));
+
+        ContratoDePatrocinio resultado = service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                new BigDecimal("500")
+        );
+
+        assertThat(resultado.getValorTotal())
+                .isEqualByComparingTo("1000.00");
+    }
+
 }
