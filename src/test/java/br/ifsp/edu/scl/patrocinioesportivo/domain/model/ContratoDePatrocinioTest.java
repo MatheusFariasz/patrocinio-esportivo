@@ -193,4 +193,33 @@ class ContratoDePatrocinioTest {
         assertThat(proposta.getParcelas().get(2).getValor())
                 .isEqualByComparingTo("33.34");
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#59 - as parcelas devem ser numeradas, começar não pagas e vencer dentro do período")
+    void asParcelasDevemSerNumeradasComecarNaoPagasEVencerDentroDoPeriodo() {
+        PeriodoContratual periodo =
+                new PeriodoContratual(LocalDate.of(2026, 1, 1), LocalDate.of(2026, 4, 1));
+
+        MetaContratual meta =
+                new MetaContratual(new BigDecimal("1000"));
+
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("900.00"));
+
+        proposta.aprovar();
+
+        assertThat(proposta.getParcelas())
+                .extracting(ParcelaDePagamento::getNumero)
+                .containsExactly(1, 2, 3);
+
+        assertThat(proposta.getParcelas())
+                .noneMatch(ParcelaDePagamento::isPaga);
+
+        assertThat(proposta.getParcelas())
+                .extracting(ParcelaDePagamento::getVencimento)
+                .allSatisfy(vencimento -> assertThat(vencimento)
+                        .isBetween(periodo.inicio(), periodo.termino()));
+    }
 }
