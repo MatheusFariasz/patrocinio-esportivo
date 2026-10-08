@@ -190,4 +190,33 @@ class SubmeterPropostaServiceTest {
         verifyNoInteractions(contratoRepository);
     }
 
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#28 - deve lancar erro para meta obrigatoria")
+    void deveLancarErroAoSubmeterPropostaSemMeta() {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                LocalDate.now().plusDays(1),
+                LocalDate.now().plusMonths(3),
+                null
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("MetaObrigatoriaError"));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
 }
