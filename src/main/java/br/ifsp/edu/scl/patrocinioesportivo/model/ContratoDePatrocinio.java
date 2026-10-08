@@ -2,6 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -87,6 +88,12 @@ public class ContratoDePatrocinio {
     }
 
     public void registrarExposicao(BigDecimal valor) {
+        if (valor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValorInvalidoError(
+                    "O valor da exposição deve ser maior que zero."
+            );
+        }
+
         if (status != StatusContrato.ATIVO
                 && status != StatusContrato.EM_RISCO) {
             throw new TransicaoDeStatusInvalidaError(
