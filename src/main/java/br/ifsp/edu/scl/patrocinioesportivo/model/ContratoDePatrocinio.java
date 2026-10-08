@@ -150,4 +150,7 @@ public class ContratoDePatrocinio {
     public BigDecimal getValorTotal() {
         return valorTotal;
     }
+
+    public void aprovar() {
+    }
 }
