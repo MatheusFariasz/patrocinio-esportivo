@@ -254,4 +254,43 @@ class SubmeterPropostaServiceTest {
                 Arguments.of(1L, 1L, "PartesIguaisError")
         );
     }
+
+    @ParameterizedTest
+    @MethodSource("periodosInvalidos")
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#53 - deve lancar erro para datas obrigatorias e periodo invalido")
+    void deveLancarErroAoSubmeterPropostaComPeriodoInvalido(LocalDate inicio, LocalDate termino) {
+
+        when(clubeRepository.existePorId(1L))
+                .thenReturn(true);
+
+        when(patrocinadorRepository.existePorId(2L))
+                .thenReturn(true);
+
+        assertThatThrownBy(() -> service.submeter(
+                PerfilUsuario.COMERCIAL,
+                1L,
+                2L,
+                new BigDecimal("1000.00"),
+                inicio,
+                termino,
+                new BigDecimal("500")
+        ))
+                .isInstanceOf(RuntimeException.class)
+                .satisfies(erro -> assertThat(erro.getClass().getSimpleName())
+                        .isEqualTo("PeriodoInvalidoError"));
+
+        verifyNoInteractions(contratoRepository);
+    }
+
+    static Stream<Arguments> periodosInvalidos() {
+        LocalDate hoje = LocalDate.now();
+        return Stream.of(
+                Arguments.of(null, hoje.plusMonths(3)),
+                Arguments.of(hoje.plusDays(1), null),
+                Arguments.of(hoje.plusDays(1), hoje.plusDays(1)),
+                Arguments.of(hoje.minusDays(10), hoje.minusDays(1))
+        );
+    }
 }
