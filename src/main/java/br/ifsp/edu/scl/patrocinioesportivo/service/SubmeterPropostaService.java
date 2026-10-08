@@ -2,6 +2,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PatrocinadorInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ClubeInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -38,7 +39,7 @@ public class SubmeterPropostaService {
             BigDecimal meta
     ) {
         if (!clubeRepository.existePorId(clubeId)) {
-            throw new IllegalArgumentException("Clube não encontrado.");
+            throw new ClubeInexistenteError("Clube não encontrado.");
         }
 
         if (!patrocinadorRepository.existePorId(patrocinadorId)) {
