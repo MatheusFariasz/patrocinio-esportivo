@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PagamentoJaRegistradoError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -9,16 +10,17 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarPagamentoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class RegistrarPagamentoServiceTest {
 
@@ -149,5 +151,49 @@ class RegistrarPagamentoServiceTest {
 
         assertThat(parcela.getDataPagamento())
                 .isEqualTo(dataPagamentoOriginal);
+    }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusContrato.class, names = {
+            "PENDENTE",
+            "ENCERRADO",
+            "RECUSADO",
+            "CANCELADO"
+    })
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#18 - deve impedir pagamento quando o contrato não permite")
+    void deveImpedirPagamentoQuandoContratoNaoPermite(StatusContrato status) {
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        LocalDate.now().minusDays(5)
+                );
+
+        ContratoDePatrocinio contrato = ContratoDePatrocinio.reconstituir(
+                status,
+                null,
+                null,
+                new BigDecimal("1000.00"),
+                List.of(parcela)
+        );
+
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        RegistrarPagamentoService service =
+                new RegistrarPagamentoService(repository);
+
+        assertThatThrownBy(() -> service.registrar(1L, 1))
+                .isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(parcela.isPaga()).isFalse();
+        assertThat(parcela.getDataPagamento()).isNull();
+
+        verify(repository, never()).salvar(any(ContratoDePatrocinio.class));
     }
 }
