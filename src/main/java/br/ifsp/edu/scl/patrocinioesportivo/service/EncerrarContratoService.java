@@ -22,5 +22,6 @@ public class EncerrarContratoService {
                         ));
 
         contrato.encerrar();
+        repository.salvar(contrato);
     }
 }

@@ -172,7 +172,7 @@ class RenovarContratoDePatrocinioServiceTest {
     @DisplayName("#39 - deve impedir renovação com parcela pendente e preservar o contrato")
     void deveImpedirRenovacaoComPendenciaFinanceira() {
         ContratoDePatrocinio contrato = contrato(StatusContrato.ATIVO, true, true);
-        contrato.getParcelas().add(new ParcelaDePagamento(3, new BigDecimal("100")));
+        contrato.adicionarParcela(new ParcelaDePagamento(3, new BigDecimal("100")));
         verificarPendenciaFinanceira(contrato);
     }
 
