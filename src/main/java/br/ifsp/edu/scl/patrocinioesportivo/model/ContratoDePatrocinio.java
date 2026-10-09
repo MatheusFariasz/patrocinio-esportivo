@@ -161,6 +161,10 @@ public class ContratoDePatrocinio {
                 .forEach(this::adicionarParcela);
     }
 
+    public void recusar() {
+        status = StatusContrato.RECUSADO;
+    }
+
     public BigDecimal getExposicaoAcumulada() {
         return exposicaoAcumulada;
     }
