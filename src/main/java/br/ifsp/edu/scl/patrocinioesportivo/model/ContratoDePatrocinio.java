@@ -168,6 +168,10 @@ public class ContratoDePatrocinio {
     }
 
     public void editar(BigDecimal novoValor, LocalDate novoInicio, LocalDate novoTermino, BigDecimal novaMeta) {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError("Propostas já avaliadas não podem ser editadas.");
+        }
+
         PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoTermino);
         if (novoPeriodo.termino().isBefore(LocalDate.now())) {
             throw new PeriodoInvalidoError("O período contratual é inválido.");
