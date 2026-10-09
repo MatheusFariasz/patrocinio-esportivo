@@ -62,4 +62,51 @@ class RegistrarPagamentoServiceTest {
 
         verify(repository).salvar(contrato);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#16 - deve registrar pagamento de parcela vencida com a data real do pagamento")
+    void deveRegistrarPagamentoDeParcelaVencidaComDataRealDoPagamento() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        LocalDate.now().minusDays(5)
+                );
+
+        contrato.adicionarParcela(parcela);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        when(repository.salvar(contrato))
+                .thenReturn(contrato);
+
+        RegistrarPagamentoService service =
+                new RegistrarPagamentoService(repository);
+
+        LocalDate dataAntesDoPagamento = LocalDate.now();
+
+        service.registrar(1L, 1);
+
+        LocalDate dataDepoisDoPagamento = LocalDate.now();
+
+        assertThat(parcela.isPaga()).isTrue();
+
+        assertThat(parcela.getDataPagamento())
+                .isNotNull()
+                .isBetween(dataAntesDoPagamento, dataDepoisDoPagamento);
+
+        assertThat(parcela.isEmAtraso(LocalDate.now()))
+                .isFalse();
+
+        verify(repository).salvar(contrato);
+    }
 }
