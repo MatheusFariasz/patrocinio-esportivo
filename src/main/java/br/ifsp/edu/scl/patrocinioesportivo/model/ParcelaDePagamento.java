@@ -1,5 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PagamentoJaRegistradoError;
+
 import java.math.BigDecimal;
 import java.time.LocalDate;
 import java.util.Objects;
@@ -10,6 +12,7 @@ public class ParcelaDePagamento {
     private final BigDecimal valor;
     private final LocalDate vencimento;
     private boolean paga;
+    private LocalDate dataPagamento;
 
     public ParcelaDePagamento(int numero, BigDecimal valor) {
         this(numero, valor, null);
@@ -24,6 +27,21 @@ public class ParcelaDePagamento {
 
     public void registrarPagamento() {
         this.paga = true;
+    }
+
+    public void registrarPagamento(LocalDate dataPagamento) {
+        if (paga) {
+            throw new PagamentoJaRegistradoError(
+                    "O pagamento desta parcela já foi registrado."
+            );
+        }
+
+        this.paga = true;
+        this.dataPagamento = dataPagamento;
+    }
+
+    public LocalDate getDataPagamento() {
+        return dataPagamento;
     }
 
     public boolean isPaga() {
