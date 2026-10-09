@@ -10,6 +10,8 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.ConsultarContratoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -173,5 +175,36 @@ class ConsultarContratoServiceTest {
                 .isInstanceOf(IdentificacaoObrigatoriaError.class);
 
         verifyNoInteractions(repository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"PENDENTE", "EM_RISCO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#60 - deve consultar contrato independentemente do status")
+    void deveConsultarContratoEmDiferentesStatus(StatusContrato status) {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        ContratoDePatrocinio resultado =
+                service.consultar(1L);
+
+        assertThat(resultado.getStatus())
+                .isEqualTo(status);
+
+        assertThat(resultado.getParcelas().isEmpty())
+                .isTrue();
     }
 }
