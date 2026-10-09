@@ -20,7 +20,7 @@ class ParcelaDePagamentoFunctionalTest {
             "-1, false, true", "0, false, false", "1, false, false",
             "-1, true, false", "0, true, false", "1, true, false"
     })
-    @DisplayName("#62 - MF-16 - VL/TD - cruza vencimento e quitação na avaliação de atraso")
+    @DisplayName("#62 - VL/TD - cruza vencimento e quitação na avaliação de atraso")
     void avaliaAtrasoNaFronteiraDoVencimento(int dias, boolean paga, boolean atraso) {
         LocalDate hoje = LocalDate.of(2026, 10, 10);
         ParcelaDePagamento parcela = new ParcelaDePagamento(

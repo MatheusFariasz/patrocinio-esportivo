@@ -22,7 +22,7 @@ class MetaContratualFunctionalTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"0.01", "500"})
-    @DisplayName("#19 e #54 - MF-03/MF-04 - PE - metas equivalentes ocupam uma entrada no conjunto")
+    @DisplayName("#19 e #54 - PE - metas equivalentes ocupam uma entrada no conjunto")
     void metasEquivalentesOcupamUmaEntrada(String valor) {
         BigDecimal numero = new BigDecimal(valor);
         MetaContratual primeira = new MetaContratual(numero);
@@ -35,14 +35,14 @@ class MetaContratualFunctionalTest {
 
     @ParameterizedTest
     @ValueSource(strings = {"-0.01", "0"})
-    @DisplayName("#54 - MF-03 - VL - rejeita meta na fronteira não positiva")
+    @DisplayName("#54 - VL - rejeita meta na fronteira não positiva")
     void rejeitaMetaNaoPositiva(String valor) {
         assertThatThrownBy(() -> new MetaContratual(new BigDecimal(valor)))
                 .isInstanceOf(MetaInvalidaError.class);
     }
 
     @Test
-    @DisplayName("#28 - MF-03 - PE - rejeita meta ausente")
+    @DisplayName("#28 - PE - rejeita meta ausente")
     void rejeitaMetaAusente() {
         assertThatThrownBy(() -> new MetaContratual(null))
                 .isInstanceOf(MetaObrigatoriaError.class);

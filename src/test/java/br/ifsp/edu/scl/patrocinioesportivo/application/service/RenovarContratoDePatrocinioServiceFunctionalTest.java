@@ -63,7 +63,7 @@ class RenovarContratoDePatrocinioServiceFunctionalTest {
             "ATIVO, 499.99, false", "ATIVO, 500, true", "ATIVO, 500.01, true",
             "EM_RISCO, 499.99, false", "EM_RISCO, 500, true", "EM_RISCO, 500.01, true"
     })
-    @DisplayName("#38, #40, #42 e #69 - MF-06 - VL - avalia exposição abaixo, igual e acima da meta")
+    @DisplayName("#38, #40, #42 e #69 - VL - avalia exposição abaixo, igual e acima da meta")
     void avaliaLimiteDaMeta(StatusContrato status, BigDecimal exposicao, boolean renova) {
         ContratoDePatrocinio contrato = contrato(status, true, exposicao);
         PeriodoContratual anterior = contrato.getPeriodoContratual();
@@ -97,7 +97,7 @@ class RenovarContratoDePatrocinioServiceFunctionalTest {
 
     @ParameterizedTest
     @EnumSource(value = StatusContrato.class, names = {"ATIVO", "EM_RISCO"})
-    @DisplayName("#38 e #66 - MF-08 - VL - aceita renovação com duração de um mês")
+    @DisplayName("#38 e #66 - VL - aceita renovação com duração de um mês")
     void aceitaDuracaoDeUmMes(StatusContrato status) {
         ContratoDePatrocinio contrato = contrato(status, true, new BigDecimal("500"));
         LocalDate novoInicio = contrato.getPeriodoContratual().termino().plusDays(1);
@@ -117,7 +117,7 @@ class RenovarContratoDePatrocinioServiceFunctionalTest {
 
     @ParameterizedTest(name = "{0} com dívida e exposição {1}")
     @CsvSource({"ATIVO, 499.99", "ATIVO, 500", "EM_RISCO, 499.99", "EM_RISCO, 500"})
-    @DisplayName("#39 e #68 - MF-09 - TD R3/R4/R7/R8 - dívida impede renovação com ou sem meta")
+    @DisplayName("#39 e #68 - TD R3/R4/R7/R8 - dívida impede renovação com ou sem meta")
     void impedeRenovacaoComDivida(StatusContrato status, String valorExposicao) {
         BigDecimal exposicao = new BigDecimal(valorExposicao);
         ContratoDePatrocinio contrato = contrato(status, false, exposicao);
@@ -141,7 +141,7 @@ class RenovarContratoDePatrocinioServiceFunctionalTest {
 
     @ParameterizedTest(name = "término {0} dia(s), renova={1}")
     @CsvSource({"-1, true", "0, false", "1, false"})
-    @DisplayName("#38 e #64 - MF-07 - VL - avalia término ontem, hoje e amanhã")
+    @DisplayName("#38 e #64 - VL - avalia término ontem, hoje e amanhã")
     void avaliaFronteiraDoTermino(int dias, boolean renova) {
         LocalDate hoje = LocalDate.now();
         LocalDate termino = hoje.plusDays(dias);

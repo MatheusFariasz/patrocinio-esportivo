@@ -48,7 +48,7 @@ class EditarPropostaServiceFunctionalTest {
 
     @ParameterizedTest(name = "valor={0}, meta={1}")
     @CsvSource({"-0.01, 0.01, true", "0.01, -0.01, false"})
-    @DisplayName("#47 - MF-05 - VL - rejeição próxima de zero não compromete edição seguinte")
+    @DisplayName("#47 - VL - rejeição próxima de zero não compromete edição seguinte")
     void preservaPropostaAposRejeicaoEPermiteNovaEdicao(
             BigDecimal valor, BigDecimal meta, boolean valorInvalido) {
         ContratoDePatrocinio proposta = proposta(StatusContrato.PENDENTE);
@@ -79,7 +79,7 @@ class EditarPropostaServiceFunctionalTest {
 
     @ParameterizedTest
     @EnumSource(value = StatusContrato.class, names = {"PENDENTE"}, mode = EnumSource.Mode.EXCLUDE)
-    @DisplayName("#44 e #45 - MF-05 - TD - proposta avaliada rejeita edição mesmo com valor inválido")
+    @DisplayName("#44 e #45 - TD - proposta avaliada rejeita edição mesmo com valor inválido")
     void priorizaEstadoDaPropostaAntesDeAlterarDados(StatusContrato status) {
         ContratoDePatrocinio proposta = proposta(status);
         PeriodoContratual anterior = proposta.getPeriodoContratual();

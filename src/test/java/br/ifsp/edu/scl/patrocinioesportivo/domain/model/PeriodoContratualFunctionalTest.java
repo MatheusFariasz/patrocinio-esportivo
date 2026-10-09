@@ -18,7 +18,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 @Tag("Functional")
 class PeriodoContratualFunctionalTest {
     @Test
-    @DisplayName("#27 e #53 - MF-02 - VL - aceita término um dia após o início")
+    @DisplayName("#27 e #53 - VL - aceita término um dia após o início")
     void aceitaPeriodoDeUmDia() {
         LocalDate inicio = LocalDate.of(2026, 10, 10);
 
@@ -30,7 +30,7 @@ class PeriodoContratualFunctionalTest {
 
     @ParameterizedTest(name = "alteração de {0} dia(s)")
     @ValueSource(ints = {1, 30})
-    @DisplayName("#71, #72 e #89 - MF-04 - PE - conserva igualdade e original após criar períodos")
+    @DisplayName("#71, #72 e #89 - PE - conserva igualdade e original após criar períodos")
     void conservaOriginalEIgualdadeAoCriarPeriodos(int dias) {
         LocalDate inicio = LocalDate.of(2026, 10, 10);
         LocalDate termino = inicio.plusMonths(3);

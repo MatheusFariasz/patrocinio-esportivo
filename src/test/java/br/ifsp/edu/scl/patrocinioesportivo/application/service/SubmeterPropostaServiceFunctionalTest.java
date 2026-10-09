@@ -46,7 +46,7 @@ class SubmeterPropostaServiceFunctionalTest {
 
     @ParameterizedTest(name = "valor={0}, meta={1}")
     @CsvSource({"0.01, 500", "1000, 0.01", "0.01, 0.01"})
-    @DisplayName("#20, #26 e #54 - MF-01/MF-03 - VL - aceita valor e meta positivos próximos de zero")
+    @DisplayName("#20, #26 e #54 - VL - aceita valor e meta positivos próximos de zero")
     void aceitaPequenosValoresPositivos(BigDecimal valor, BigDecimal meta) {
         prepararRepositorios();
         LocalDate inicio = LocalDate.now().plusDays(2);
