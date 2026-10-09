@@ -1,5 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.IdentificacaoObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -8,14 +10,17 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.ConsultarContratoService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 import java.util.List;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
+import static org.mockito.Mockito.*;
 
 class ConsultarContratoServiceTest {
 
@@ -87,6 +92,124 @@ class ConsultarContratoServiceTest {
                 .isEqualTo(1);
 
         assertThat(resultado.getParcelas().get(0).isPaga())
+                .isTrue();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#11 - deve consultar os dados completos das parcelas")
+    void deveConsultarDadosCompletosDasParcelas() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        LocalDate vencimento =
+                LocalDate.of(2026, 11, 15);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        vencimento
+                );
+
+        contrato.adicionarParcela(parcela);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        ContratoDePatrocinio resultado =
+                service.consultar(1L);
+
+        assertThat(resultado.getParcelas().size())
+                .isEqualTo(1);
+
+        ParcelaDePagamento parcelaConsultada =
+                resultado.getParcelas().get(0);
+
+        assertThat(parcelaConsultada.getNumero())
+                .isEqualTo(1);
+
+        assertThat(parcelaConsultada.getValor())
+                .isEqualByComparingTo("1000.00");
+
+        assertThat(parcelaConsultada.getVencimento())
+                .isEqualTo(vencimento);
+
+        assertThat(parcelaConsultada.isPaga())
+                .isFalse();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#12 - deve lançar erro ao consultar contrato inexistente")
+    void deveLancarErroAoConsultarContratoInexistente() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        when(repository.buscarPorId(99L))
+                .thenReturn(Optional.empty());
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        assertThatThrownBy(() -> service.consultar(99L))
+                .isInstanceOf(ContratoInexistenteError.class)
+                .hasMessage("Contrato não encontrado.");
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#13 - deve lançar erro ao consultar contrato sem identificação")
+    void deveLancarErroAoConsultarContratoSemIdentificacao() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        assertThatThrownBy(() -> service.consultar(null))
+                .isInstanceOf(IdentificacaoObrigatoriaError.class);
+
+        verifyNoInteractions(repository);
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"PENDENTE", "EM_RISCO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#60 - deve consultar contrato independentemente do status")
+    void deveConsultarContratoEmDiferentesStatus(StatusContrato status) {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        ContratoDePatrocinio resultado =
+                service.consultar(1L);
+
+        assertThat(resultado.getStatus())
+                .isEqualTo(status);
+
+        assertThat(resultado.getParcelas().isEmpty())
                 .isTrue();
     }
 }

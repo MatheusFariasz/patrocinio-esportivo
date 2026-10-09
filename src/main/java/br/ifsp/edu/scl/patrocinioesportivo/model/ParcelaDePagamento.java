@@ -53,4 +53,10 @@ public class ParcelaDePagamento {
     public int hashCode() {
         return Objects.hashCode(numero);
     }
+
+    public boolean isEmAtraso(LocalDate dataReferencia) {
+        return !paga
+                && vencimento != null
+                && vencimento.isBefore(dataReferencia);
+    }
 }

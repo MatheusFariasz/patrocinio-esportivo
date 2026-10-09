@@ -208,6 +208,16 @@ public class ContratoDePatrocinio {
         return List.copyOf(historico);
     }
 
+    public void recusar() {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas propostas pendentes podem ser recusadas."
+            );
+        }
+
+        status = StatusContrato.RECUSADO;
+    }
+
     public BigDecimal getExposicaoAcumulada() {
         return exposicaoAcumulada;
     }
