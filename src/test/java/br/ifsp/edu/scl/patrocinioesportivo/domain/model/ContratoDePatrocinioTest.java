@@ -2,6 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoNaoAtivoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ParcelaDuplicadaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import org.junit.jupiter.api.DisplayName;
@@ -270,5 +271,27 @@ class ContratoDePatrocinioTest {
 
         assertThat(contrato.getParcelas())
                 .isEmpty();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#75 - não deve adicionar parcela com identificador já existente no contrato")
+    void naoDeveAdicionarParcelaComIdentificadorDuplicado() {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        contrato.adicionarParcela(
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"))
+        );
+
+        ParcelaDePagamento parcelaDuplicada =
+                new ParcelaDePagamento(1, new BigDecimal("500.00"));
+
+        assertThatThrownBy(() -> contrato.adicionarParcela(parcelaDuplicada))
+                .isInstanceOf(ParcelaDuplicadaError.class);
+
+        assertThat(contrato.getParcelas())
+                .hasSize(1);
     }
 }
