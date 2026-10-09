@@ -14,6 +14,7 @@ import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.time.LocalDate;
 import java.util.Optional;
 
@@ -58,9 +59,6 @@ class ConsultarContratoServiceTest {
         ContratoDePatrocinioRepository repository =
                 mock(ContratoDePatrocinioRepository.class);
 
-        ContratoDePatrocinio contrato =
-                new ContratoDePatrocinio(StatusContrato.ENCERRADO);
-
         ParcelaDePagamento parcela =
                 new ParcelaDePagamento(
                         1,
@@ -69,7 +67,14 @@ class ConsultarContratoServiceTest {
 
         parcela.registrarPagamento();
 
-        contrato.adicionarParcela(parcela);
+        ContratoDePatrocinio contrato =
+                ContratoDePatrocinio.reconstituir(
+                        StatusContrato.ENCERRADO,
+                        null,
+                        null,
+                        null,
+                        List.of(parcela)
+                );
 
         when(repository.buscarPorId(1L))
                 .thenReturn(Optional.of(contrato));

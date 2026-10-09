@@ -2,6 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.Objects;
 
 public class ParcelaDePagamento {
 
@@ -39,5 +40,17 @@ public class ParcelaDePagamento {
 
     public LocalDate getVencimento() {
         return vencimento;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (o == null || getClass() != o.getClass()) return false;
+        ParcelaDePagamento that = (ParcelaDePagamento) o;
+        return numero == that.numero;
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hashCode(numero);
     }
 }
