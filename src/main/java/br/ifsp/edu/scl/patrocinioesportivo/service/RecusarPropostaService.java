@@ -30,6 +30,6 @@ public class RecusarPropostaService {
                         ));
 
         proposta.recusar();
-
+        repository.salvar(proposta);
     }
 }
