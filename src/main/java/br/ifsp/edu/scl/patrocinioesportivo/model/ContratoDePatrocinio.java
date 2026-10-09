@@ -52,6 +52,25 @@ public class ContratoDePatrocinio {
         this.exposicaoAcumulada = BigDecimal.ZERO;
     }
 
+    public static ContratoDePatrocinio reconstituir(
+            StatusContrato status,
+            PeriodoContratual periodoContratual,
+            MetaContratual metaContratual,
+            BigDecimal valorTotal,
+            List<ParcelaDePagamento> parcelas
+    ) {
+        ContratoDePatrocinio contrato = new ContratoDePatrocinio(
+                status,
+                periodoContratual,
+                metaContratual,
+                valorTotal
+        );
+
+        contrato.parcelas.addAll(parcelas);
+
+        return contrato;
+    }
+
     public void adicionarParcela(ParcelaDePagamento parcela) {
         parcelas.add(parcela);
     }
