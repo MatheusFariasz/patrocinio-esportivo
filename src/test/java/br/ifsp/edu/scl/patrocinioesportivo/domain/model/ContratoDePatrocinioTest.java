@@ -294,4 +294,21 @@ class ContratoDePatrocinioTest {
         assertThat(contrato.getParcelas())
                 .hasSize(1);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#49 - deve recusar proposta pendente sem gerar parcelas")
+    void deveRecusarPropostaPendenteSemGerarParcelas() {
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE);
+
+        proposta.recusar();
+
+        assertThat(proposta.getStatus())
+                .isEqualTo(StatusContrato.RECUSADO);
+
+        assertThat(proposta.getParcelas())
+                .isEmpty();
+    }
 }
