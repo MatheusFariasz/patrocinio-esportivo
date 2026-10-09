@@ -215,4 +215,25 @@ class RenovarContratoDePatrocinioServiceTest {
         assertThat(contrato.getHistorico()).hasSize(1);
         verify(repository).salvar(contrato);
     }
+
+    @ParameterizedTest
+    @ValueSource(ints = {0, 1})
+    @DisplayName("#64 - não deve renovar antes de terminar o período vigente")
+    void naoDeveRenovarAntecipadamente(int diasAteTermino) {
+        LocalDate termino = LocalDate.now().plusDays(diasAteTermino);
+        ContratoDePatrocinio contrato = new ContratoDePatrocinio(StatusContrato.ATIVO,
+                new PeriodoContratual(termino.minusMonths(3), termino),
+                new MetaContratual(new BigDecimal("500")), new BigDecimal("1000"));
+        contrato.registrarExposicao(new BigDecimal("500"));
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(contrato));
+
+        assertThatThrownBy(() -> service.renovar(1L, 3, new BigDecimal("800")))
+                .isInstanceOf(PeriodoInvalidoError.class)
+                .hasMessageContaining("antecipada");
+
+        assertThat(contrato.getPeriodoContratual().termino()).isEqualTo(termino);
+        assertThat(contrato.getStatus()).isEqualTo(StatusContrato.ATIVO);
+        assertThat(contrato.getHistorico()).isEmpty();
+        verify(repository, never()).salvar(contrato);
+    }
 }
