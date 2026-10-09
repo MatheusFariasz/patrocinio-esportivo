@@ -118,4 +118,11 @@ class EditarPropostaServiceTest {
                 .isInstanceOf(IdentificacaoObrigatoriaError.class);
         verifyNoInteractions(repository);
     }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusContrato.class, names = {"ATIVO", "EM_RISCO", "ENCERRADO", "RECUSADO"})
+    @DisplayName("#44 - não deve editar proposta que já foi avaliada")
+    void naoDeveEditarPropostaAvaliada(StatusContrato status) {
+        verificarStatusInvalido(status);
+    }
 }
