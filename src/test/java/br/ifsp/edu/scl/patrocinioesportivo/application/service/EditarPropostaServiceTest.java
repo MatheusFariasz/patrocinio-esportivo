@@ -143,4 +143,25 @@ class EditarPropostaServiceTest {
 
         verify(repository, never()).salvar(org.mockito.ArgumentMatchers.any());
     }
+
+    @ParameterizedTest
+    @MethodSource("dadosInvalidos")
+    @DisplayName("#47 - deve preservar todos os dados da proposta quando a edição é inválida")
+    void devePreservarPropostaComDadosInvalidos(BigDecimal valor, LocalDate inicio, LocalDate termino,
+                                               BigDecimal novaMeta, Class<? extends RuntimeException> erro) {
+        ContratoDePatrocinio proposta = proposta(StatusContrato.PENDENTE);
+        PeriodoContratual periodo = proposta.getPeriodoContratual();
+        MetaContratual meta = proposta.getMetaContratual();
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(proposta));
+
+        assertThatThrownBy(() -> service.editar(1L, valor, inicio, termino, novaMeta))
+                .isInstanceOf(erro);
+
+        assertThat(proposta.getValorTotal()).isEqualByComparingTo("1000.00");
+        assertThat(proposta.getPeriodoContratual()).isSameAs(periodo);
+        assertThat(proposta.getMetaContratual()).isSameAs(meta);
+        assertThat(proposta.getStatus()).isEqualTo(StatusContrato.PENDENTE);
+        assertThat(proposta.getParcelas()).isEmpty();
+        verify(repository, never()).salvar(proposta);
+    }
 }
