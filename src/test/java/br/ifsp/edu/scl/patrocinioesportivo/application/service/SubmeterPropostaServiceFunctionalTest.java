@@ -66,7 +66,7 @@ class SubmeterPropostaServiceFunctionalTest {
     }
 
     @Test
-    @DisplayName("BUG-06/MF-15 - PE - conserva os identificadores das partes")
+    @DisplayName("BUG-06 - PE - conserva os identificadores das partes")
     void conservaIdentificadoresDasPartes() {
         prepararRepositorios();
         LocalDate inicio = LocalDate.now().plusDays(2);
