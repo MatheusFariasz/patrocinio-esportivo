@@ -196,4 +196,43 @@ class RegistrarPagamentoServiceTest {
 
         verify(repository, never()).salvar(any(ContratoDePatrocinio.class));
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#55 - deve lançar erro ao pagar parcela inexistente")
+    void deveLancarErroAoPagarParcelaInexistente() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        contrato.adicionarParcela(
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        LocalDate.now().plusDays(10)
+                )
+        );
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        RegistrarPagamentoService service =
+                new RegistrarPagamentoService(repository);
+
+        assertThatThrownBy(() -> service.registrar(1L, 2))
+                .isInstanceOf(ParcelaInexistenteError.class);
+
+        assertThat(contrato.getParcelas())
+                .filteredOn(parcela -> parcela.getNumero() == 1)
+                .singleElement()
+                .satisfies(parcela -> {
+                    assertThat(parcela.isPaga()).isFalse();
+                    assertThat(parcela.getDataPagamento()).isNull();
+                });
+
+        verify(repository, never()).salvar(any(ContratoDePatrocinio.class));
+    }
 }
