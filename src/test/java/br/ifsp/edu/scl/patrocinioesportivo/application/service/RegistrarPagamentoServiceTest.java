@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PagamentoJaRegistradoError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ParcelaInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;

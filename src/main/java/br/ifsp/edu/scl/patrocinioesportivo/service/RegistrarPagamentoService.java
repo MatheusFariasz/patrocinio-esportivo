@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ParcelaInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
@@ -39,7 +40,10 @@ public class RegistrarPagamentoService {
         ParcelaDePagamento parcela = contrato.getParcelas().stream()
                 .filter(item -> item.getNumero() == numeroParcela)
                 .findFirst()
-                .orElseThrow();
+                .orElseThrow(() ->
+                        new ParcelaInexistenteError(
+                                "Parcela não encontrada no contrato."
+                        ));
 
         parcela.registrarPagamento(LocalDate.now());
 
