@@ -170,6 +170,11 @@ public class ContratoDePatrocinio {
             throw new PendenciaFinanceiraError("Existem pendências financeiras no período vigente.");
         }
 
+        if (!metaFoiAtingida()) {
+            status = StatusContrato.EM_RISCO;
+            return;
+        }
+
         LocalDate novoInicio = periodoContratual.termino().plusDays(1);
         PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoInicio.plusMonths(duracaoMeses));
         MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
