@@ -199,4 +199,20 @@ class RenovarContratoDePatrocinioServiceTest {
         assertThat(contrato.getHistorico()).isEmpty();
         verify(repository, never()).salvar(contrato);
     }
+
+    @Test
+    @DisplayName("#42 - deve renovar contrato em risco e voltar ao status ativo")
+    void deveRenovarContratoEmRisco() {
+        ContratoDePatrocinio contrato = contrato(StatusContrato.EM_RISCO, true, true);
+        PeriodoContratual periodo = contrato.getPeriodoContratual();
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(contrato));
+
+        service.renovar(1L, 3, new BigDecimal("800"));
+
+        assertThat(contrato.getStatus()).isEqualTo(StatusContrato.ATIVO);
+        assertThat(contrato.getPeriodoContratual().inicio()).isEqualTo(periodo.termino().plusDays(1));
+        assertThat(contrato.getExposicaoAcumulada()).isEqualByComparingTo(BigDecimal.ZERO);
+        assertThat(contrato.getHistorico()).hasSize(1);
+        verify(repository).salvar(contrato);
+    }
 }
