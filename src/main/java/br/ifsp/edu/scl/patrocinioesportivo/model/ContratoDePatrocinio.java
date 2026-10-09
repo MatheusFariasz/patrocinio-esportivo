@@ -172,6 +172,10 @@ public class ContratoDePatrocinio {
             throw new TransicaoDeStatusInvalidaError("Propostas já avaliadas não podem ser editadas.");
         }
 
+        if (novoValor == null || novoValor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValorInvalidoError("O valor do patrocínio deve ser maior que zero.");
+        }
+
         PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoTermino);
         if (novoPeriodo.termino().isBefore(LocalDate.now())) {
             throw new PeriodoInvalidoError("O período contratual é inválido.");
