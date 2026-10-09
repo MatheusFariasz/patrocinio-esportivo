@@ -5,3 +5,9 @@ Projeto de gestão de patrocínios esportivos desenvolvido para a disciplina **V
 ```powershell
 .\mvnw.cmd spring-boot:run
 ```
+
+Para executar todas as suítes:
+
+```powershell
+.\mvnw.cmd "-Dtest=UnitTestSuite,TddSuite,FunctionalSuite" test
+```
