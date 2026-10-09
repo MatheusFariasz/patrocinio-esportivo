@@ -166,8 +166,8 @@ public class ContratoDePatrocinio {
     }
 
     public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
-        if (status != StatusContrato.ATIVO) {
-            throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos podem ser renovados.");
+        if (status != StatusContrato.ATIVO && status != StatusContrato.EM_RISCO) {
+            throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos ou em risco podem ser renovados.");
         }
 
         if (parcelas.stream().anyMatch(parcela -> !parcela.isPaga())) {
