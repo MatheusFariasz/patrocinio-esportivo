@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoNaoAtivoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
@@ -72,6 +73,12 @@ public class ContratoDePatrocinio {
     }
 
     public void adicionarParcela(ParcelaDePagamento parcela) {
+        if (status != StatusContrato.ATIVO) {
+            throw new ContratoNaoAtivoError(
+                    "Apenas contratos ativos podem receber parcelas."
+            );
+        }
+
         parcelas.add(parcela);
     }
 
