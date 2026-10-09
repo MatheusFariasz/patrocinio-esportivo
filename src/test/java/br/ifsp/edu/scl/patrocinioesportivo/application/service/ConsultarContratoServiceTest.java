@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -83,5 +84,56 @@ class ConsultarContratoServiceTest {
 
         assertThat(resultado.getParcelas().get(0).isPaga())
                 .isTrue();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#11 - deve consultar os dados completos das parcelas")
+    void deveConsultarDadosCompletosDasParcelas() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        LocalDate vencimento =
+                LocalDate.of(2026, 11, 15);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        vencimento
+                );
+
+        contrato.adicionarParcela(parcela);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        ContratoDePatrocinio resultado =
+                service.consultar(1L);
+
+        assertThat(resultado.getParcelas().size())
+                .isEqualTo(1);
+
+        ParcelaDePagamento parcelaConsultada =
+                resultado.getParcelas().get(0);
+
+        assertThat(parcelaConsultada.getNumero())
+                .isEqualTo(1);
+
+        assertThat(parcelaConsultada.getValor())
+                .isEqualByComparingTo("1000.00");
+
+        assertThat(parcelaConsultada.getVencimento())
+                .isEqualTo(vencimento);
+
+        assertThat(parcelaConsultada.isPaga())
+                .isFalse();
     }
 }
