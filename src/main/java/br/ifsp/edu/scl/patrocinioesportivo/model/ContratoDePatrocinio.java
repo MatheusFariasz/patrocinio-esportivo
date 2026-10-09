@@ -2,6 +2,8 @@ package br.ifsp.edu.scl.patrocinioesportivo.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.*;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PendenciaFinanceiraError;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -164,6 +166,10 @@ public class ContratoDePatrocinio {
     }
 
     public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
+        if (parcelas.stream().anyMatch(parcela -> !parcela.isPaga())) {
+            throw new PendenciaFinanceiraError("Existem pendências financeiras no período vigente.");
+        }
+
         LocalDate novoInicio = periodoContratual.termino().plusDays(1);
         PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoInicio.plusMonths(duracaoMeses));
         MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
