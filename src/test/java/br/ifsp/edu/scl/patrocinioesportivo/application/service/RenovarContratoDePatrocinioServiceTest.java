@@ -182,4 +182,21 @@ class RenovarContratoDePatrocinioServiceTest {
         ContratoDePatrocinio contrato = contrato(StatusContrato.ATIVO, true, false);
         verificarMetaNaoAtingida(contrato);
     }
+
+    @ParameterizedTest
+    @EnumSource(value = StatusContrato.class, names = {"ENCERRADO", "PENDENTE", "RECUSADO", "CANCELADO"})
+    @DisplayName("#41 - deve impedir renovação de contrato com status inválido")
+    void deveImpedirRenovacaoComStatusInvalido(StatusContrato status) {
+        ContratoDePatrocinio contrato = contrato(status, true, false);
+        PeriodoContratual periodo = contrato.getPeriodoContratual();
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(contrato));
+
+        assertThatThrownBy(() -> service.renovar(1L, 3, new BigDecimal("800")))
+                .isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(contrato.getStatus()).isEqualTo(status);
+        assertThat(contrato.getPeriodoContratual()).isSameAs(periodo);
+        assertThat(contrato.getHistorico()).isEmpty();
+        verify(repository, never()).salvar(contrato);
+    }
 }
