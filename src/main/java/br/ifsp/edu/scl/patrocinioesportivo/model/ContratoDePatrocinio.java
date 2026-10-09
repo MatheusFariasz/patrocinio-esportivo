@@ -88,6 +88,22 @@ public class ContratoDePatrocinio {
         return contrato;
     }
 
+    public static ContratoDePatrocinio reconstituir(
+            Long id, StatusContrato status, PeriodoContratual periodo, MetaContratual meta,
+            BigDecimal valorTotal, Long clubeId, Long patrocinadorId,
+            BigDecimal exposicaoAcumulada, BigDecimal multaRescisoria,
+            List<ParcelaDePagamento> parcelas, List<HistoricoDePeriodo> historico
+    ) {
+        ContratoDePatrocinio contrato = new ContratoDePatrocinio(
+                status, periodo, meta, valorTotal, clubeId, patrocinadorId);
+        contrato.id = id;
+        contrato.exposicaoAcumulada = exposicaoAcumulada;
+        contrato.multaRescisoria = multaRescisoria;
+        contrato.parcelas.addAll(parcelas);
+        contrato.historico.addAll(historico);
+        return contrato;
+    }
+
     public void adicionarParcela(ParcelaDePagamento parcela) {
         if (status != StatusContrato.ATIVO) {
             throw new ContratoNaoAtivoError(

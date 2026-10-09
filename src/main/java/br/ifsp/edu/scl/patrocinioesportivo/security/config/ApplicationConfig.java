@@ -1,6 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.security.config;
 
-import br.ifsp.edu.scl.patrocinioesportivo.security.user.JpaUserRepository;
+import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.AuthenticationManager;
@@ -15,9 +15,9 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 @Configuration
 public class ApplicationConfig {
 
-    private final JpaUserRepository repository;
+    private final UserRepository repository;
 
-    public ApplicationConfig(JpaUserRepository repository) {
+    public ApplicationConfig(UserRepository repository) {
         this.repository = repository;
     }
 

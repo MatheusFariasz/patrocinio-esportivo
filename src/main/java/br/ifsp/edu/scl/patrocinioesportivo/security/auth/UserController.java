@@ -6,7 +6,8 @@ import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
+import jakarta.validation.Valid;
+import io.swagger.v3.oas.annotations.security.SecurityRequirements;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -15,12 +16,16 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 @RestController
+@SecurityRequirements
 @RequestMapping(path = "/api/v1")
-@AllArgsConstructor
 @Tag(name = "Registration/Authentication API")
 public class UserController {
 
     private final AuthenticationService authenticationService;
+
+    public UserController(AuthenticationService authenticationService) {
+        this.authenticationService = authenticationService;
+    }
 
     @Operation(
             summary = "Register a new user.",
@@ -31,7 +36,7 @@ public class UserController {
                     responseCode = "201", description = "Successful operation.",
                     content = @Content(
                             mediaType = "application/json",
-                            schema = @Schema(implementation = RegisterUserRequest.class)
+                            schema = @Schema(implementation = RegisterUserResponse.class)
                     )
             ),
             @ApiResponse(
@@ -46,7 +51,7 @@ public class UserController {
             )
     })
     @PostMapping("/register")
-    public ResponseEntity<?> register(@RequestBody RegisterUserRequest request) {
+    public ResponseEntity<?> register(@Valid @RequestBody RegisterUserRequest request) {
         final RegisterUserResponse response = authenticationService.register(request);
         return new ResponseEntity<>(response, HttpStatus.CREATED);
     }
@@ -70,7 +75,7 @@ public class UserController {
             )
     })
     @PostMapping("/authenticate")
-    public ResponseEntity<?> register(@RequestBody AuthRequest request) {
+    public ResponseEntity<?> authenticate(@Valid @RequestBody AuthRequest request) {
         final AuthResponse response = authenticationService.authenticate(request);
         return new ResponseEntity<>(response, HttpStatus.OK);
     }
