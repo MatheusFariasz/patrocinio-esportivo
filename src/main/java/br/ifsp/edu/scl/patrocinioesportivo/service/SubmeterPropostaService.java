@@ -80,7 +80,9 @@ public class SubmeterPropostaService {
                 StatusContrato.PENDENTE,
                 periodoContratual,
                 metaContratual,
-                valor
+                valor,
+                clubeId,
+                patrocinadorId
         );
 
         return contratoRepository.salvar(proposta);

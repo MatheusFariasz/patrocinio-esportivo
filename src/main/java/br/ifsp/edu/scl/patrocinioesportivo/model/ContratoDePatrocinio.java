@@ -7,9 +7,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.PendenciaFinanceiraError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
 
 import java.math.BigDecimal;
-import java.math.RoundingMode;
 import java.time.LocalDate;
-import java.time.temporal.ChronoUnit;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -27,6 +25,8 @@ public class ContratoDePatrocinio {
     private BigDecimal multaRescisoria;
     private BigDecimal exposicaoAcumulada;
     private BigDecimal valorTotal;
+    private Long clubeId;
+    private Long patrocinadorId;
 
     public ContratoDePatrocinio(StatusContrato status) {
         this(status, null, null);
@@ -54,6 +54,19 @@ public class ContratoDePatrocinio {
         this.historico = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
         this.exposicaoAcumulada = BigDecimal.ZERO;
+    }
+
+    public ContratoDePatrocinio(
+            StatusContrato status,
+            PeriodoContratual periodoContratual,
+            MetaContratual metaContratual,
+            BigDecimal valorTotal,
+            Long clubeId,
+            Long patrocinadorId
+    ) {
+        this(status, periodoContratual, metaContratual, valorTotal);
+        this.clubeId = clubeId;
+        this.patrocinadorId = patrocinadorId;
     }
 
     public static ContratoDePatrocinio reconstituir(
@@ -274,4 +287,11 @@ public class ContratoDePatrocinio {
         return valorTotal;
     }
 
+    public Long getClubeId() {
+        return clubeId;
+    }
+
+    public Long getPatrocinadorId() {
+        return patrocinadorId;
+    }
 }
