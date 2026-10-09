@@ -131,4 +131,16 @@ class EditarPropostaServiceTest {
     void naoDeveEditarPropostaCancelada() {
         verificarStatusInvalido(StatusContrato.CANCELADO);
     }
+
+    @Test
+    @DisplayName("#46 - deve informar proposta inexistente ao editar")
+    void deveInformarPropostaInexistente() {
+        when(repository.buscarPorId(1L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> service.editar(1L, new BigDecimal("2000.00"),
+                LocalDate.now().plusDays(1), LocalDate.now().plusMonths(3), new BigDecimal("800")))
+                .isInstanceOf(ContratoInexistenteError.class);
+
+        verify(repository, never()).salvar(org.mockito.ArgumentMatchers.any());
+    }
 }
