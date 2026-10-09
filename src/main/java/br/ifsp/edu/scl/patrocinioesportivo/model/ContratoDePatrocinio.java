@@ -1,9 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.model;
 
-import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoNaoAtivoError;
-import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
-import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
-import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.*;
 
 import java.math.BigDecimal;
 import java.math.RoundingMode;
@@ -76,6 +73,13 @@ public class ContratoDePatrocinio {
         if (status != StatusContrato.ATIVO) {
             throw new ContratoNaoAtivoError(
                     "Apenas contratos ativos podem receber parcelas."
+            );
+        }
+
+        if (parcelas.contains(parcela)) {
+            throw new ParcelaDuplicadaError(
+                    "Já existe uma parcela com o número "
+                            + parcela.getNumero() + " neste contrato."
             );
         }
 
