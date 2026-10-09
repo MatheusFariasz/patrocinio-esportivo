@@ -93,7 +93,7 @@ public class ContratoDePatrocinio {
     }
 
     public List<ParcelaDePagamento> getParcelas() {
-        return parcelas;
+        return List.copyOf(parcelas);
     }
 
     public void cancelar() {
