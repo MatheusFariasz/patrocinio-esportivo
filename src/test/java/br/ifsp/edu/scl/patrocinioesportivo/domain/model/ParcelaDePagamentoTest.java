@@ -30,7 +30,7 @@ class ParcelaDePagamentoTest {
     @Test
     @Tag("UnitTest")
     @Tag("TDD")
-    @DisplayName("NOVO-9 - deve identificar parcela vencida e não paga como em atraso")
+    @DisplayName("#62 - deve identificar parcela vencida e não paga como em atraso")
     void deveIdentificarParcelaVencidaNaoPagaComoEmAtraso() {
         ParcelaDePagamento parcela =
                 new ParcelaDePagamento(
@@ -46,7 +46,7 @@ class ParcelaDePagamentoTest {
     @Test
     @Tag("UnitTest")
     @Tag("TDD")
-    @DisplayName("NOVO-9 - não deve identificar parcela dentro do prazo como em atraso")
+    @DisplayName("#62 - não deve identificar parcela dentro do prazo como em atraso")
     void naoDeveIdentificarParcelaDentroDoPrazoComoEmAtraso() {
         ParcelaDePagamento parcela =
                 new ParcelaDePagamento(
@@ -62,7 +62,7 @@ class ParcelaDePagamentoTest {
     @Test
     @Tag("UnitTest")
     @Tag("TDD")
-    @DisplayName("NOVO-9 - não deve identificar parcela paga como em atraso")
+    @DisplayName("#62 - não deve identificar parcela paga como em atraso")
     void naoDeveIdentificarParcelaPagaComoEmAtraso() {
         ParcelaDePagamento parcela =
                 new ParcelaDePagamento(
