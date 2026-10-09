@@ -27,5 +27,7 @@ public class CancelarPropostaService {
                         new ContratoInexistenteError("Proposta não encontrada."));
 
         proposta.cancelar();
+
+        repository.salvar(proposta);
     }
 }
