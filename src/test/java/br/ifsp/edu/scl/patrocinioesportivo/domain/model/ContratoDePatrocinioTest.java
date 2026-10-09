@@ -222,4 +222,26 @@ class ContratoDePatrocinioTest {
                 .allSatisfy(vencimento -> assertThat(vencimento)
                         .isBetween(periodo.inicio(), periodo.termino()));
     }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"ATIVO", "EM_RISCO", "ENCERRADO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#31 - não deve aprovar proposta que não está pendente")
+    void naoDeveAprovarPropostaQueNaoEstaPendente(StatusContrato status) {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        assertThatThrownBy(contrato::aprovar)
+                .isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(status);
+
+        assertThat(contrato.getParcelas())
+                .isEmpty();
+    }
 }
