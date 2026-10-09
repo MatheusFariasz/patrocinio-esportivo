@@ -218,6 +218,38 @@ class ContratoApiIntegrationTest {
     }
 
     @Test
+    @DisplayName("Recusa autorizada é conservada na resposta e em nova leitura SQLite")
+    void persistedRefusal() throws Exception {
+        String admin = token(Role.ADMIN);
+        long id = proposal(admin);
+        var result = response(post("/api/v1/propostas/" + id + "/recusa"), admin, 200);
+        assertThat(result.get("status").asText()).isEqualTo("RECUSADO");
+        assertThat(contratos.buscarPorId(id).orElseThrow().getStatus()).isEqualTo(StatusContrato.RECUSADO);
+        assertThat(response(get("/api/v1/contratos/" + id), admin, 200).get("status").asText())
+                .isEqualTo("RECUSADO");
+        response(post("/api/v1/propostas/" + id + "/recusa"), admin, 409);
+    }
+
+    @Test
+    @DisplayName("Exposição acumula no SQLite e entrada inválida não altera o total")
+    void persistedExposure() throws Exception {
+        String user = token(Role.USER);
+        long id = proposal(user);
+        response(post("/api/v1/propostas/" + id + "/aprovacao"), token(Role.ADMIN), 200);
+        response(post("/api/v1/contratos/" + id + "/exposicoes").contentType(APPLICATION_JSON)
+                .content("{\"valor\":25.25}"), user, 200);
+        var result = response(post("/api/v1/contratos/" + id + "/exposicoes").contentType(APPLICATION_JSON)
+                .content("{\"valor\":10.10}"), user, 200);
+        assertThat(result.get("exposicaoAcumulada").decimalValue()).isEqualByComparingTo("35.35");
+        assertThat(contratos.buscarPorId(id).orElseThrow().getExposicaoAcumulada())
+                .isEqualByComparingTo("35.35");
+        response(post("/api/v1/contratos/" + id + "/exposicoes").contentType(APPLICATION_JSON)
+                .content("{\"valor\":-1}"), user, 400);
+        assertThat(response(get("/api/v1/contratos/" + id), user, 200).get("exposicaoAcumulada").decimalValue())
+                .isEqualByComparingTo("35.35");
+    }
+
+    @Test
     @DisplayName("OpenAPI disponibiliza os endpoints e o esquema de autenticação Bearer")
     void openApiDocumentation() throws Exception {
         mvc.perform(get("/api/v1/openapi")).andExpect(status().isOk())
