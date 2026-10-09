@@ -117,12 +117,3 @@ Os testes de integração usam bancos SQLite temporários, preservando `database
 Eles verificam autenticação, contexto Spring, fluxos HTTP, persistência de histórico,
 precisão decimal, chaves estrangeiras e rollback. Sua tag é `IntegrationTest`;
 as suítes do domínio mantêm `UnitTest`, `TDD` e `Functional`.
-
-## Correções aguardando integração
-
-Os endpoints de recusa e exposição já estão conectados aos serviços, mas ainda
-dependem das duas correções do Vinicius: `RecusarPropostaService` e
-`RegistrarExposicaoService` precisam salvar o contrato após a alteração.
-Na versão atual, essas alterações não persistem. Os fluxos de sucesso desses dois
-endpoints devem ser verificados novamente depois de integrar os commits dele.
-Os testes aprovados da API não certificam esses dois fluxos pendentes.
