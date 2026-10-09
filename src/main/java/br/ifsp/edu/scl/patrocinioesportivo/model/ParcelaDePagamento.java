@@ -10,6 +10,7 @@ public class ParcelaDePagamento {
     private final BigDecimal valor;
     private final LocalDate vencimento;
     private boolean paga;
+    private LocalDate dataPagamento;
 
     public ParcelaDePagamento(int numero, BigDecimal valor) {
         this(numero, valor, null);
@@ -24,6 +25,15 @@ public class ParcelaDePagamento {
 
     public void registrarPagamento() {
         this.paga = true;
+    }
+
+    public void registrarPagamento(LocalDate dataPagamento) {
+        this.paga = true;
+        this.dataPagamento = dataPagamento;
+    }
+
+    public LocalDate getDataPagamento() {
+        return dataPagamento;
     }
 
     public boolean isPaga() {
