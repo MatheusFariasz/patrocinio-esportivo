@@ -14,6 +14,7 @@ import java.time.LocalDate;
 import java.util.Optional;
 
 import static org.assertj.core.api.Assertions.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -108,5 +109,44 @@ class RegistrarPagamentoServiceTest {
                 .isFalse();
 
         verify(repository).salvar(contrato);
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#17 - deve impedir pagamento duplicado e preservar a data original")
+    void deveImpedirPagamentoDuplicadoEPreservarDataOriginal() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(StatusContrato.ATIVO);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        LocalDate.of(2026, 10, 1)
+                );
+
+        LocalDate dataPagamentoOriginal =
+                LocalDate.of(2026, 10, 5);
+
+        parcela.registrarPagamento(dataPagamentoOriginal);
+        contrato.adicionarParcela(parcela);
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        RegistrarPagamentoService service =
+                new RegistrarPagamentoService(repository);
+
+        assertThatThrownBy(() -> service.registrar(1L, 1))
+                .isInstanceOf(PagamentoJaRegistradoError.class);
+
+        assertThat(parcela.isPaga()).isTrue();
+
+        assertThat(parcela.getDataPagamento())
+                .isEqualTo(dataPagamentoOriginal);
     }
 }
