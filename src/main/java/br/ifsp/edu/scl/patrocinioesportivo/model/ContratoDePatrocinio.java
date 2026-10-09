@@ -119,6 +119,12 @@ public class ContratoDePatrocinio {
     }
 
     public void aprovar() {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas propostas pendentes podem ser aprovadas."
+            );
+        }
+
         status = StatusContrato.ATIVO;
 
         GeradorDeParcelas.gerar(valorTotal, periodoContratual)
