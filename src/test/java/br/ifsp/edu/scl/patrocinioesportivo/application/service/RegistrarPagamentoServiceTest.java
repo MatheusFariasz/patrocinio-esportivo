@@ -236,4 +236,43 @@ class RegistrarPagamentoServiceTest {
 
         verify(repository, never()).salvar(any(ContratoDePatrocinio.class));
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#56 - deve permitir pagamento em contrato em risco")
+    void devePermitirPagamentoEmContratoEmRisco() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(
+                        1,
+                        new BigDecimal("1000.00"),
+                        LocalDate.now().minusDays(5)
+                );
+
+        ContratoDePatrocinio contrato =
+                ContratoDePatrocinio.reconstituir(
+                        StatusContrato.EM_RISCO,
+                        null,
+                        null,
+                        new BigDecimal("1000.00"),
+                        List.of(parcela)
+                );
+
+        when(repository.buscarPorId(1L))
+                .thenReturn(Optional.of(contrato));
+
+        RegistrarPagamentoService service =
+                new RegistrarPagamentoService(repository);
+
+        service.registrar(1L, 1);
+
+        assertThat(parcela.isPaga()).isTrue();
+        assertThat(parcela.getDataPagamento()).isEqualTo(LocalDate.now());
+        assertThat(contrato.getStatus()).isEqualTo(StatusContrato.EM_RISCO);
+
+        verify(repository).salvar(contrato);
+    }
 }
