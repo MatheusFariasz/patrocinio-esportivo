@@ -26,7 +26,7 @@ class CancelarPropostaServiceFunctionalTest {
     @InjectMocks private CancelarPropostaService service;
 
     @Test
-    @DisplayName("BUG-03/MF-12 - PE - salva o resultado do cancelamento")
+    @DisplayName("BUG-03 - PE - salva o resultado do cancelamento")
     void salvaCancelamento() {
         ContratoDePatrocinio proposta = new ContratoDePatrocinio(StatusContrato.PENDENTE);
         proposta.definirId(1L);
