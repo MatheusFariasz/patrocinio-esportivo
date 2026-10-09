@@ -236,4 +236,27 @@ class RenovarContratoDePatrocinioServiceTest {
         assertThat(contrato.getHistorico()).isEmpty();
         verify(repository, never()).salvar(contrato);
     }
+
+    @ParameterizedTest
+    @NullSource
+    @ValueSource(ints = {0, -1})
+    @DisplayName("#66 - deve preservar o contrato quando a duração do novo período é inválida")
+    void deveImpedirRenovacaoComDuracaoInvalida(Integer duracao) {
+        ContratoDePatrocinio contrato = contrato(StatusContrato.ATIVO, true, true);
+        PeriodoContratual periodo = contrato.getPeriodoContratual();
+        MetaContratual meta = contrato.getMetaContratual();
+        var parcelas = java.util.List.copyOf(contrato.getParcelas());
+        when(repository.buscarPorId(1L)).thenReturn(Optional.of(contrato));
+
+        assertThatThrownBy(() -> service.renovar(1L, duracao, new BigDecimal("800")))
+                .isInstanceOf(PeriodoInvalidoError.class);
+
+        assertThat(contrato.getPeriodoContratual()).isSameAs(periodo);
+        assertThat(contrato.getMetaContratual()).isSameAs(meta);
+        assertThat(contrato.getParcelas()).containsExactlyElementsOf(parcelas);
+        assertThat(contrato.getStatus()).isEqualTo(StatusContrato.ATIVO);
+        assertThat(contrato.getExposicaoAcumulada()).isEqualByComparingTo("500");
+        assertThat(contrato.getHistorico()).isEmpty();
+        verify(repository, never()).salvar(contrato);
+    }
 }
