@@ -125,4 +125,10 @@ class EditarPropostaServiceTest {
     void naoDeveEditarPropostaAvaliada(StatusContrato status) {
         verificarStatusInvalido(status);
     }
+
+    @Test
+    @DisplayName("#45 - não deve editar proposta cancelada")
+    void naoDeveEditarPropostaCancelada() {
+        verificarStatusInvalido(StatusContrato.CANCELADO);
+    }
 }
