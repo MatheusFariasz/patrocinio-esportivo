@@ -162,6 +162,12 @@ public class ContratoDePatrocinio {
     }
 
     public void recusar() {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas propostas pendentes podem ser recusadas."
+            );
+        }
+
         status = StatusContrato.RECUSADO;
     }
 
