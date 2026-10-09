@@ -9,6 +9,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.repository.PatrocinadorRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.service.SubmeterPropostaService;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
+import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.CsvSource;
@@ -61,6 +62,21 @@ class SubmeterPropostaServiceFunctionalTest {
         assertThat(proposta.getPeriodoContratual().inicio()).isEqualTo(inicio);
         assertThat(proposta.getPeriodoContratual().termino()).isEqualTo(termino);
         assertThat(proposta.getParcelas()).isEmpty();
+        verify(contratoRepository).salvar(proposta);
+    }
+
+    @Test
+    @DisplayName("BUG-06/MF-15 - PE - conserva os identificadores das partes")
+    void conservaIdentificadoresDasPartes() {
+        prepararRepositorios();
+        LocalDate inicio = LocalDate.now().plusDays(2);
+
+        ContratoDePatrocinio proposta = service.submeter(
+                PerfilUsuario.COMERCIAL, 10L, 20L, new BigDecimal("1000"),
+                inicio, inicio.plusMonths(3), new BigDecimal("500"));
+
+        assertThat(proposta).extracting("clubeId", "patrocinadorId")
+                .containsExactly(10L, 20L);
         verify(contratoRepository).salvar(proposta);
     }
 }
