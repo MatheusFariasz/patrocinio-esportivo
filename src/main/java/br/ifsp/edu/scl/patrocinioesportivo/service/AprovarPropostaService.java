@@ -2,6 +2,7 @@ package br.ifsp.edu.scl.patrocinioesportivo.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PermissaoNegadaError;
+import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.PerfilUsuario;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import org.springframework.stereotype.Service;
@@ -21,10 +22,15 @@ public class AprovarPropostaService {
                     "Apenas o diretor financeiro pode aprovar propostas."
             );
         }
-        repository.buscarPorId(contratoId)
+
+        ContratoDePatrocinio proposta = repository.buscarPorId(contratoId)
                 .orElseThrow(() ->
                         new ContratoInexistenteError(
                                 "Proposta não encontrada."
                         ));
+
+        proposta.aprovar();
+
+        repository.salvar(proposta);
     }
 }
