@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.service;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.IdentificacaoObrigatoriaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.model.ParcelaDePagamento;
 import br.ifsp.edu.scl.patrocinioesportivo.model.StatusContrato;
@@ -16,8 +17,7 @@ import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
-import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.when;
+import static org.mockito.Mockito.*;
 
 class ConsultarContratoServiceTest {
 
@@ -156,5 +156,22 @@ class ConsultarContratoServiceTest {
         assertThatThrownBy(() -> service.consultar(99L))
                 .isInstanceOf(ContratoInexistenteError.class)
                 .hasMessage("Contrato não encontrado.");
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#13 - deve lançar erro ao consultar contrato sem identificação")
+    void deveLancarErroAoConsultarContratoSemIdentificacao() {
+        ContratoDePatrocinioRepository repository =
+                mock(ContratoDePatrocinioRepository.class);
+
+        ConsultarContratoService service =
+                new ConsultarContratoService(repository);
+
+        assertThatThrownBy(() -> service.consultar(null))
+                .isInstanceOf(IdentificacaoObrigatoriaError.class);
+
+        verifyNoInteractions(repository);
     }
 }
