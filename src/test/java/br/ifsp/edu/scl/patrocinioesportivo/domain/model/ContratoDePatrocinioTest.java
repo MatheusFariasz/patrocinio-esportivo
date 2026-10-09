@@ -1,5 +1,6 @@
 package br.ifsp.edu.scl.patrocinioesportivo.domain.model;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoNaoAtivoError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.OperacaoRedundanteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.TransicaoDeStatusInvalidaError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
@@ -240,6 +241,28 @@ class ContratoDePatrocinioTest {
 
         assertThat(contrato.getStatus())
                 .isEqualTo(status);
+
+        assertThat(contrato.getParcelas())
+                .isEmpty();
+    }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"PENDENTE", "EM_RISCO", "ENCERRADO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#73 - não deve adicionar parcela a contrato que não está ATIVO")
+    void naoDeveAdicionarParcelaAContratoQueNaoEstaAtivo(StatusContrato status) {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"));
+
+        assertThatThrownBy(() -> contrato.adicionarParcela(parcela))
+                .isInstanceOf(ContratoNaoAtivoError.class);
 
         assertThat(contrato.getParcelas())
                 .isEmpty();
