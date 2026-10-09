@@ -12,6 +12,7 @@ import org.junit.jupiter.params.provider.EnumSource;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
+import java.util.List;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatThrownBy;
@@ -96,10 +97,13 @@ class ContratoDePatrocinioTest {
                 new ParcelaDePagamento(2, new BigDecimal("2000.00"));
 
         ContratoDePatrocinio contrato =
-                new ContratoDePatrocinio(StatusContrato.EM_RISCO);
-
-        contrato.adicionarParcela(parcela1);
-        contrato.adicionarParcela(parcela2);
+                ContratoDePatrocinio.reconstituir(
+                        StatusContrato.EM_RISCO,
+                        null,
+                        null,
+                        null,
+                        List.of(parcela1, parcela2)
+                );
 
         contrato.encerrar();
 
