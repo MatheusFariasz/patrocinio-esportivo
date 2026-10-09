@@ -52,14 +52,14 @@ class PeriodoContratualTest {
     }
 
     @Test
-    @DisplayName("#19 - períodos com as mesmas datas devem ser iguais por valor")
+    @DisplayName("#89 - períodos com as mesmas datas devem ser iguais por valor")
     void deveCompararPeriodosPorValor() {
         LocalDate inicio = LocalDate.now().plusDays(1);
         LocalDate termino = inicio.plusMonths(3);
         PeriodoContratual primeiro = new PeriodoContratual(inicio, termino);
         PeriodoContratual segundo = new PeriodoContratual(inicio, termino);
 
-        assertThat(primeiro).isEqualTo(segundo);
+        assertThat(primeiro).isNotSameAs(segundo).isEqualTo(segundo);
         assertThat(primeiro.hashCode()).isEqualTo(segundo.hashCode());
     }
 

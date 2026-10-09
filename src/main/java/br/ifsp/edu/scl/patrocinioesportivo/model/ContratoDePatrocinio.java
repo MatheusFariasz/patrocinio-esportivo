@@ -2,6 +2,10 @@ package br.ifsp.edu.scl.patrocinioesportivo.model;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.*;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PendenciaFinanceiraError;
+
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -16,12 +20,13 @@ public class ContratoDePatrocinio {
 
     private Long id;
     private StatusContrato status;
-    private final PeriodoContratual periodoContratual;
-    private final MetaContratual metaContratual;
+    private PeriodoContratual periodoContratual;
+    private MetaContratual metaContratual;
     private final List<ParcelaDePagamento> parcelas;
+    private final List<HistoricoDePeriodo> historico;
     private BigDecimal multaRescisoria;
     private BigDecimal exposicaoAcumulada;
-    private final BigDecimal valorTotal;
+    private BigDecimal valorTotal;
 
     public ContratoDePatrocinio(StatusContrato status) {
         this(status, null, null);
@@ -46,6 +51,7 @@ public class ContratoDePatrocinio {
         this.valorTotal = valorTotal;
         this.status = status;
         this.parcelas = new ArrayList<>();
+        this.historico = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
         this.exposicaoAcumulada = BigDecimal.ZERO;
     }
@@ -159,6 +165,67 @@ public class ContratoDePatrocinio {
 
         GeradorDeParcelas.gerar(valorTotal, periodoContratual)
                 .forEach(this::adicionarParcela);
+    }
+
+    public void editar(BigDecimal novoValor, LocalDate novoInicio, LocalDate novoTermino, BigDecimal novaMeta) {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError("Propostas já avaliadas não podem ser editadas.");
+        }
+
+        if (novoValor == null || novoValor.compareTo(BigDecimal.ZERO) <= 0) {
+            throw new ValorInvalidoError("O valor do patrocínio deve ser maior que zero.");
+        }
+
+        PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoTermino);
+        if (novoPeriodo.termino().isBefore(LocalDate.now())) {
+            throw new PeriodoInvalidoError("O período contratual é inválido.");
+        }
+        MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
+
+        valorTotal = novoValor;
+        periodoContratual = novoPeriodo;
+        metaContratual = novaMetaContratual;
+    }
+
+    public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
+        if (status != StatusContrato.ATIVO && status != StatusContrato.EM_RISCO) {
+            throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos ou em risco podem ser renovados.");
+        }
+
+        if (duracaoMeses == null || duracaoMeses <= 0) {
+            throw new PeriodoInvalidoError("A duração do novo período deve ser maior que zero.");
+        }
+
+        if (!periodoContratual.termino().isBefore(LocalDate.now())) {
+            throw new PeriodoInvalidoError("Não é possível fazer uma renovação antecipada.");
+        }
+
+        if (parcelas.stream().anyMatch(parcela -> !parcela.isPaga())) {
+            throw new PendenciaFinanceiraError("Existem pendências financeiras no período vigente.");
+        }
+
+        if (!metaFoiAtingida()) {
+            status = StatusContrato.EM_RISCO;
+            return;
+        }
+
+        LocalDate novoInicio = periodoContratual.termino().plusDays(1);
+        PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoInicio.plusMonths(duracaoMeses));
+        MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
+        int ultimoNumero = parcelas.stream().mapToInt(ParcelaDePagamento::getNumero).max().orElse(0);
+        List<ParcelaDePagamento> novasParcelas = GeradorDeParcelas.gerar(valorTotal, novoPeriodo, ultimoNumero + 1);
+
+        historico.add(new HistoricoDePeriodo(periodoContratual, metaContratual, exposicaoAcumulada, parcelas));
+        periodoContratual = novoPeriodo;
+        metaContratual = novaMetaContratual;
+        parcelas.clear();
+        exposicaoAcumulada = BigDecimal.ZERO;
+        status = StatusContrato.ATIVO;
+        novasParcelas.forEach(this::adicionarParcela);
+    }
+
+    public List<HistoricoDePeriodo> getHistorico() {
+        return List.copyOf(historico);
     }
 
     public void recusar() {
