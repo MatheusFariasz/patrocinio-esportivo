@@ -265,4 +265,10 @@ class RenovarContratoDePatrocinioServiceTest {
     void devePriorizarPendenciaFinanceira() {
         verificarPendenciaFinanceira(contrato(StatusContrato.ATIVO, false, false));
     }
+
+    @Test
+    @DisplayName("#69 - deve manter contrato em risco quando a meta não foi atingida")
+    void deveManterContratoEmRisco() {
+        verificarMetaNaoAtingida(contrato(StatusContrato.EM_RISCO, true, false));
+    }
 }
