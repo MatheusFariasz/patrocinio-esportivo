@@ -175,4 +175,11 @@ class RenovarContratoDePatrocinioServiceTest {
         contrato.getParcelas().add(new ParcelaDePagamento(3, new BigDecimal("100")));
         verificarPendenciaFinanceira(contrato);
     }
+
+    @Test
+    @DisplayName("#40 - deve mudar para em risco quando a meta não foi atingida")
+    void deveMudarParaEmRiscoSemRenovar() {
+        ContratoDePatrocinio contrato = contrato(StatusContrato.ATIVO, true, false);
+        verificarMetaNaoAtingida(contrato);
+    }
 }
