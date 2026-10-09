@@ -26,7 +26,7 @@ public class ContratoDePatrocinio {
     private final List<HistoricoDePeriodo> historico;
     private BigDecimal multaRescisoria;
     private BigDecimal exposicaoAcumulada;
-    private final BigDecimal valorTotal;
+    private BigDecimal valorTotal;
 
     public ContratoDePatrocinio(StatusContrato status) {
         this(status, null, null);
@@ -165,6 +165,18 @@ public class ContratoDePatrocinio {
 
         GeradorDeParcelas.gerar(valorTotal, periodoContratual)
                 .forEach(this::adicionarParcela);
+    }
+
+    public void editar(BigDecimal novoValor, LocalDate novoInicio, LocalDate novoTermino, BigDecimal novaMeta) {
+        PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoTermino);
+        if (novoPeriodo.termino().isBefore(LocalDate.now())) {
+            throw new PeriodoInvalidoError("O período contratual é inválido.");
+        }
+        MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
+
+        valorTotal = novoValor;
+        periodoContratual = novoPeriodo;
+        metaContratual = novaMetaContratual;
     }
 
     public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
