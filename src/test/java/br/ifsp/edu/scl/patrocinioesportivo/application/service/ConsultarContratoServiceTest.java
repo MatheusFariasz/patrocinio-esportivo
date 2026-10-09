@@ -10,6 +10,7 @@ import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.Optional;
 
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
@@ -53,9 +54,6 @@ class ConsultarContratoServiceTest {
         ContratoDePatrocinioRepository repository =
                 mock(ContratoDePatrocinioRepository.class);
 
-        ContratoDePatrocinio contrato =
-                new ContratoDePatrocinio(StatusContrato.ENCERRADO);
-
         ParcelaDePagamento parcela =
                 new ParcelaDePagamento(
                         1,
@@ -64,7 +62,14 @@ class ConsultarContratoServiceTest {
 
         parcela.registrarPagamento();
 
-        contrato.adicionarParcela(parcela);
+        ContratoDePatrocinio contrato =
+                ContratoDePatrocinio.reconstituir(
+                        StatusContrato.ENCERRADO,
+                        null,
+                        null,
+                        null,
+                        List.of(parcela)
+                );
 
         when(repository.buscarPorId(1L))
                 .thenReturn(Optional.of(contrato));
