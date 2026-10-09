@@ -172,6 +172,10 @@ public class ContratoDePatrocinio {
             throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos ou em risco podem ser renovados.");
         }
 
+        if (duracaoMeses == null || duracaoMeses <= 0) {
+            throw new PeriodoInvalidoError("A duração do novo período deve ser maior que zero.");
+        }
+
         if (!periodoContratual.termino().isBefore(LocalDate.now())) {
             throw new PeriodoInvalidoError("Não é possível fazer uma renovação antecipada.");
         }
