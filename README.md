@@ -81,6 +81,7 @@ Na edição, envie somente `valor`, `inicio`, `termino` e `meta`. Para exposiç�
 envie `{"valor": 25}`; para renovação, `{"duracaoMeses": 3, "novaMeta": 150}`.
 As outras operações POST não exigem corpo. As respostas de negócio devolvem o
 estado persistido, incluindo IDs, condições contratuais, parcelas e histórico.
+Cada parcela inclui `emAtraso`, calculado na consulta pelo vencimento e quitação.
 Uma avaliação de renovação com meta não atingida pode retornar HTTP 200 e status
 `EM_RISCO`, conforme o comportamento do domínio; confira o estado na resposta.
 
@@ -117,3 +118,12 @@ Os testes de integração usam bancos SQLite temporários, preservando `database
 Eles verificam autenticação, contexto Spring, fluxos HTTP, persistência de histórico,
 precisão decimal, chaves estrangeiras e rollback. Sua tag é `IntegrationTest`;
 as suítes do domínio mantêm `UnitTest`, `TDD` e `Functional`.
+
+## Rastreabilidade das correções
+
+Os bugs de recusa e exposição foram registrados retrospectivamente como
+[#102](https://github.com/MatheusFariasz/patrocinio-esportivo/issues/102) e
+[#103](https://github.com/MatheusFariasz/patrocinio-esportivo/issues/103).
+As correções já tinham sido integradas no PR #99; seus commits originais
+(`a300fe1` e `6628529`) referenciavam #13/#14 incorretamente. As issues corretas
+documentam a origem e a validação, preservando o histórico publicado.
