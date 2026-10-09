@@ -4,6 +4,8 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.*;
 
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PendenciaFinanceiraError;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
+
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 import java.time.LocalDate;
@@ -168,6 +170,10 @@ public class ContratoDePatrocinio {
     public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
         if (status != StatusContrato.ATIVO && status != StatusContrato.EM_RISCO) {
             throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos ou em risco podem ser renovados.");
+        }
+
+        if (!periodoContratual.termino().isBefore(LocalDate.now())) {
+            throw new PeriodoInvalidoError("Não é possível fazer uma renovação antecipada.");
         }
 
         if (parcelas.stream().anyMatch(parcela -> !parcela.isPaga())) {
