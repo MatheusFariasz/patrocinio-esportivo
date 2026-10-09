@@ -12,6 +12,8 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.CsvSource;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
@@ -247,6 +249,22 @@ class ContratoApiIntegrationTest {
                 .content("{\"valor\":-1}"), user, 400);
         assertThat(response(get("/api/v1/contratos/" + id), user, 200).get("exposicaoAcumulada").decimalValue())
                 .isEqualByComparingTo("35.35");
+    }
+
+    @ParameterizedTest(name = "vencimento {0} dias, paga {1}: emAtraso {2}")
+    @CsvSource({"-1,false,true", "0,false,false", "1,false,false", "-1,true,false"})
+    @DisplayName("#101 / #62 - consulta informa atraso considerando vencimento e quitação")
+    void overdueSituation(int dias, boolean paga, boolean esperado) throws Exception {
+        var parcela = ParcelaDePagamento.reconstituir(1, BigDecimal.TEN, LocalDate.now().plusDays(dias),
+                paga, paga ? LocalDate.now() : null);
+        var contrato = ContratoDePatrocinio.reconstituir(null, StatusContrato.ATIVO,
+                new PeriodoContratual(LocalDate.now().minusMonths(1), LocalDate.now().plusMonths(1)),
+                new MetaContratual(BigDecimal.TEN), BigDecimal.TEN, 10L, 20L,
+                BigDecimal.ZERO, BigDecimal.ZERO, List.of(parcela), List.of());
+        contratos.salvar(contrato);
+        mvc.perform(get("/api/v1/contratos/" + contrato.getId())
+                        .header("Authorization", "Bearer " + token(Role.USER)))
+                .andExpect(status().isOk()).andExpect(jsonPath("$.parcelas[0].emAtraso").value(esperado));
     }
 
     @Test
