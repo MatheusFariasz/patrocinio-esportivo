@@ -311,4 +311,23 @@ class ContratoDePatrocinioTest {
         assertThat(proposta.getParcelas())
                 .isEmpty();
     }
+
+    @ParameterizedTest
+    @EnumSource(
+            value = StatusContrato.class,
+            names = {"ATIVO", "EM_RISCO", "ENCERRADO", "RECUSADO", "CANCELADO"}
+    )
+    @Tag("UnitTest")
+    @Tag("TDD")
+    @DisplayName("#50 - não deve recusar proposta que não está pendente")
+    void naoDeveRecusarPropostaQueNaoEstaPendente(StatusContrato status) {
+        ContratoDePatrocinio contrato =
+                new ContratoDePatrocinio(status);
+
+        assertThatThrownBy(contrato::recusar)
+                .isInstanceOf(TransicaoDeStatusInvalidaError.class);
+
+        assertThat(contrato.getStatus())
+                .isEqualTo(status);
+    }
 }
