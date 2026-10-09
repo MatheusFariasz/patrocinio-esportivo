@@ -16,9 +16,10 @@ public class ContratoDePatrocinio {
 
     private Long id;
     private StatusContrato status;
-    private final PeriodoContratual periodoContratual;
-    private final MetaContratual metaContratual;
+    private PeriodoContratual periodoContratual;
+    private MetaContratual metaContratual;
     private final List<ParcelaDePagamento> parcelas;
+    private final List<HistoricoDePeriodo> historico;
     private BigDecimal multaRescisoria;
     private BigDecimal exposicaoAcumulada;
     private final BigDecimal valorTotal;
@@ -46,6 +47,7 @@ public class ContratoDePatrocinio {
         this.valorTotal = valorTotal;
         this.status = status;
         this.parcelas = new ArrayList<>();
+        this.historico = new ArrayList<>();
         this.multaRescisoria = BigDecimal.ZERO;
         this.exposicaoAcumulada = BigDecimal.ZERO;
     }
@@ -159,6 +161,26 @@ public class ContratoDePatrocinio {
 
         GeradorDeParcelas.gerar(valorTotal, periodoContratual)
                 .forEach(this::adicionarParcela);
+    }
+
+    public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
+        LocalDate novoInicio = periodoContratual.termino().plusDays(1);
+        PeriodoContratual novoPeriodo = new PeriodoContratual(novoInicio, novoInicio.plusMonths(duracaoMeses));
+        MetaContratual novaMetaContratual = new MetaContratual(novaMeta);
+        int ultimoNumero = parcelas.stream().mapToInt(ParcelaDePagamento::getNumero).max().orElse(0);
+        List<ParcelaDePagamento> novasParcelas = GeradorDeParcelas.gerar(valorTotal, novoPeriodo, ultimoNumero + 1);
+
+        historico.add(new HistoricoDePeriodo(periodoContratual, metaContratual, exposicaoAcumulada, parcelas));
+        periodoContratual = novoPeriodo;
+        metaContratual = novaMetaContratual;
+        parcelas.clear();
+        exposicaoAcumulada = BigDecimal.ZERO;
+        status = StatusContrato.ATIVO;
+        novasParcelas.forEach(this::adicionarParcela);
+    }
+
+    public List<HistoricoDePeriodo> getHistorico() {
+        return List.copyOf(historico);
     }
 
     public BigDecimal getExposicaoAcumulada() {

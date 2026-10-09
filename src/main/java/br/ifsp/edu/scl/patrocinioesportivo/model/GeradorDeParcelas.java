@@ -16,6 +16,14 @@ public final class GeradorDeParcelas {
             BigDecimal valorTotal,
             PeriodoContratual periodo
     ) {
+        return gerar(valorTotal, periodo, 1);
+    }
+
+    public static List<ParcelaDePagamento> gerar(
+            BigDecimal valorTotal,
+            PeriodoContratual periodo,
+            int numeroInicial
+    ) {
         long quantidade = Math.max(1, ChronoUnit.MONTHS.between(
                 periodo.inicio(),
                 periodo.termino()
@@ -42,7 +50,7 @@ public final class GeradorDeParcelas {
                 vencimento = periodo.termino();
             }
 
-            parcelas.add(new ParcelaDePagamento(numero, valor, vencimento));
+            parcelas.add(new ParcelaDePagamento(numeroInicial + numero - 1, valor, vencimento));
         }
 
         return parcelas;
