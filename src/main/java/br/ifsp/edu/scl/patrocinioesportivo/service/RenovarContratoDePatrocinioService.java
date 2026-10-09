@@ -5,10 +5,12 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.IdentificacaoObrigatoriaErr
 import br.ifsp.edu.scl.patrocinioesportivo.model.ContratoDePatrocinio;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.math.BigDecimal;
 
 @Service
+@Transactional
 public class RenovarContratoDePatrocinioService {
 
     private final ContratoDePatrocinioRepository repository;
