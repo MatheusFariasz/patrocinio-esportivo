@@ -161,6 +161,16 @@ public class ContratoDePatrocinio {
                 .forEach(this::adicionarParcela);
     }
 
+    public void recusar() {
+        if (status != StatusContrato.PENDENTE) {
+            throw new TransicaoDeStatusInvalidaError(
+                    "Apenas propostas pendentes podem ser recusadas."
+            );
+        }
+
+        status = StatusContrato.RECUSADO;
+    }
+
     public BigDecimal getExposicaoAcumulada() {
         return exposicaoAcumulada;
     }
