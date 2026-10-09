@@ -166,6 +166,10 @@ public class ContratoDePatrocinio {
     }
 
     public void renovar(Integer duracaoMeses, BigDecimal novaMeta) {
+        if (status != StatusContrato.ATIVO) {
+            throw new TransicaoDeStatusInvalidaError("Apenas contratos ativos podem ser renovados.");
+        }
+
         if (parcelas.stream().anyMatch(parcela -> !parcela.isPaga())) {
             throw new PendenciaFinanceiraError("Existem pendências financeiras no período vigente.");
         }
