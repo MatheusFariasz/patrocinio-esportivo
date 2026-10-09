@@ -259,4 +259,10 @@ class RenovarContratoDePatrocinioServiceTest {
         assertThat(contrato.getHistorico()).isEmpty();
         verify(repository, never()).salvar(contrato);
     }
+
+    @Test
+    @DisplayName("#68 - pendência financeira deve ter prioridade sobre meta não atingida")
+    void devePriorizarPendenciaFinanceira() {
+        verificarPendenciaFinanceira(contrato(StatusContrato.ATIVO, false, false));
+    }
 }
