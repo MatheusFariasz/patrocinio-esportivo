@@ -24,5 +24,6 @@ public class RegistrarExposicaoService {
                         new ContratoInexistenteError("Contrato não encontrado."));
 
         contrato.registrarExposicao(valor);
+        repository.salvar(contrato);
     }
 }
