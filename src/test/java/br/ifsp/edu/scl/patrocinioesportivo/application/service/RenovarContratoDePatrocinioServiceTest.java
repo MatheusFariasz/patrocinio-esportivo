@@ -167,4 +167,12 @@ class RenovarContratoDePatrocinioServiceTest {
         assertThatThrownBy(() -> service.renovar(1L, 3, new BigDecimal("800")))
                 .isInstanceOf(ContratoInexistenteError.class);
     }
+
+    @Test
+    @DisplayName("#39 - deve impedir renovação com parcela pendente e preservar o contrato")
+    void deveImpedirRenovacaoComPendenciaFinanceira() {
+        ContratoDePatrocinio contrato = contrato(StatusContrato.ATIVO, true, true);
+        contrato.getParcelas().add(new ParcelaDePagamento(3, new BigDecimal("100")));
+        verificarPendenciaFinanceira(contrato);
+    }
 }
