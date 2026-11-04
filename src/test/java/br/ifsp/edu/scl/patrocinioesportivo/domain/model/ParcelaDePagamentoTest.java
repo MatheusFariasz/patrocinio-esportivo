@@ -87,4 +87,20 @@ class ParcelaDePagamentoTest {
         assertThat(parcela.isEmAtraso(LocalDate.of(2026, 10, 9)))
                 .isFalse();
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("Structural")
+    @DisplayName("deve comparar parcelas por número e rejeitar outros tipos")
+    void deveCompararParcelasPorNumeroERejeitarOutrosTipos() {
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"));
+        ParcelaDePagamento mesmaParcela =
+                new ParcelaDePagamento(1, new BigDecimal("2000.00"));
+
+        assertThat(parcela.equals(null)).isFalse();
+        assertThat(parcela.equals(new Object())).isFalse();
+        assertThat(parcela.equals(mesmaParcela)).isTrue();
+        assertThat(parcela.hashCode()).isEqualTo(mesmaParcela.hashCode());
+    }
 }

@@ -330,4 +330,24 @@ class ContratoDePatrocinioTest {
         assertThat(contrato.getStatus())
                 .isEqualTo(status);
     }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("Structural")
+    @DisplayName("deve limitar o vencimento ao término em período menor que um mês")
+    void deveLimitarVencimentoAoTerminoEmPeriodoMenorQueUmMes() {
+        LocalDate inicio = LocalDate.of(2026, 1, 1);
+        LocalDate termino = inicio.plusDays(15);
+        PeriodoContratual periodo = new PeriodoContratual(inicio, termino);
+        MetaContratual meta = new MetaContratual(new BigDecimal("1000"));
+        ContratoDePatrocinio proposta =
+                new ContratoDePatrocinio(StatusContrato.PENDENTE, periodo, meta, new BigDecimal("100.00"));
+
+        proposta.aprovar();
+
+        assertThat(proposta.getParcelas())
+                .hasSize(1);
+        assertThat(proposta.getParcelas().get(0).getVencimento())
+                .isEqualTo(termino);
+    }
 }
