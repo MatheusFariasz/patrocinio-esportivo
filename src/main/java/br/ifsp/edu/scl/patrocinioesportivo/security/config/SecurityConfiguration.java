@@ -1,6 +1,5 @@
 package br.ifsp.edu.scl.patrocinioesportivo.security.config;
 
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.http.HttpStatus;
@@ -16,7 +15,6 @@ import static org.springframework.security.config.http.SessionCreationPolicy.STA
 
 @Configuration
 @EnableWebSecurity
-@RequiredArgsConstructor
 public class SecurityConfiguration {
 
     private static final String[] WHITE_LIST_URL = {
@@ -24,11 +22,18 @@ public class SecurityConfiguration {
             "/api/v1/register",
             "/api/v1/api-docs/**",
             "/api/v1/openapi/**",
-            "/api/v1/swagger-ui/**"
+            "/api/v1/swagger-ui/**",
+            "/swagger-ui/**"
     };
 
     private final JwtAuthenticationFilter jwtAuthenticationFilter;
     private final AuthenticationProvider authenticationProvider;
+
+    public SecurityConfiguration(JwtAuthenticationFilter jwtAuthenticationFilter,
+                                 AuthenticationProvider authenticationProvider) {
+        this.jwtAuthenticationFilter = jwtAuthenticationFilter;
+        this.authenticationProvider = authenticationProvider;
+    }
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {

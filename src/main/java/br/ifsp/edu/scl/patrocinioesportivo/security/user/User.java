@@ -1,72 +1,44 @@
 package br.ifsp.edu.scl.patrocinioesportivo.security.user;
 
-import jakarta.persistence.*;
-import lombok.*;
-import org.hibernate.annotations.JdbcTypeCode;
 import org.springframework.security.core.GrantedAuthority;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.UserDetails;
 
-import java.sql.Types;
 import java.util.Collection;
 import java.util.List;
 import java.util.UUID;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-@Entity
-@Table(name = "app_user")
 public class User implements UserDetails {
-    @Id
-    @JdbcTypeCode(Types.VARCHAR)
-    @NonNull @Column(nullable = false)
-    private UUID id;
-    @NonNull @Column(nullable = false)
-    private String name;
-    @NonNull @Column(nullable = false)
-    private String lastname;
-    @NonNull @Column(nullable = false)
-    private String email;
-    @NonNull @Column(nullable = false)
-    private String password;
+    private final UUID id;
+    private final String name;
+    private final String lastname;
+    private final String email;
+    private final String password;
+    private final Role role;
 
-    @Enumerated(EnumType.STRING)
-    private Role role;
+    public User(UUID id, String name, String lastname, String email, String password, Role role) {
+        this.id = id;
+        this.name = name;
+        this.lastname = lastname;
+        this.email = email;
+        this.password = password;
+        this.role = role;
+    }
+
+    public UUID getId() { return id; }
+    public String getName() { return name; }
+    public String getLastname() { return lastname; }
+    public String getEmail() { return email; }
+    public Role getRole() { return role; }
+
+    @Override
+    public String getPassword() { return password; }
+
+    @Override
+    public String getUsername() { return email; }
 
     @Override
     public Collection<? extends GrantedAuthority> getAuthorities() {
         return List.of(new SimpleGrantedAuthority(role.name()));
-    }
-
-    @Override
-    public String getPassword() {
-        return password;
-    }
-
-    @Override
-    public String getUsername() {
-        return email;
-    }
-
-    @Override
-    public boolean isAccountNonExpired() {
-        return UserDetails.super.isAccountNonExpired();
-    }
-
-    @Override
-    public boolean isAccountNonLocked() {
-        return UserDetails.super.isAccountNonLocked();
-    }
-
-    @Override
-    public boolean isCredentialsNonExpired() {
-        return UserDetails.super.isCredentialsNonExpired();
-    }
-
-    @Override
-    public boolean isEnabled() {
-        return UserDetails.super.isEnabled();
     }
 }

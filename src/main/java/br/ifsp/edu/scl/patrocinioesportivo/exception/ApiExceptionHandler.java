@@ -1,76 +1,67 @@
 package br.ifsp.edu.scl.patrocinioesportivo.exception;
 
-import jakarta.persistence.EntityNotFoundException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.ControllerAdvice;
+import org.springframework.http.converter.HttpMessageNotReadableException;
+import org.springframework.security.core.AuthenticationException;
+import org.springframework.web.bind.MethodArgumentNotValidException;
+import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
+import org.springframework.web.method.annotation.MethodArgumentTypeMismatchException;
 
-import java.time.ZoneId;
 import java.time.ZonedDateTime;
+import java.time.ZoneOffset;
+import java.util.stream.Collectors;
 
 import static org.springframework.http.HttpStatus.*;
 
-@ControllerAdvice
+@RestControllerAdvice
 public class ApiExceptionHandler {
-
-    @ExceptionHandler(value = NullPointerException.class)
-    public ResponseEntity<?> handleNullPointerException(NullPointerException e){
-        final HttpStatus badRequest = BAD_REQUEST;
-        final ApiException apiException = ApiException.builder()
-                .status(badRequest)
-                .message(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return new ResponseEntity<>(apiException, badRequest);
+    @ExceptionHandler(AuthenticationException.class)
+    public ResponseEntity<ApiException> authentication(AuthenticationException e) {
+        return error("Credenciais inválidas.", UNAUTHORIZED, e);
     }
 
-    @ExceptionHandler(value = IllegalArgumentException.class)
-    public ResponseEntity<?> handleIllegalArgumentException(IllegalArgumentException e){
-        final HttpStatus badRequest = BAD_REQUEST;
-        final ApiException apiException = ApiException.builder()
-                .status(badRequest)
-                .message(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return new ResponseEntity<>(apiException, badRequest);
+    @ExceptionHandler({ContratoInexistenteError.class, ClubeInexistenteError.class,
+            PatrocinadorInexistenteError.class, ParcelaInexistenteError.class})
+    public ResponseEntity<ApiException> notFound(RuntimeException e) {
+        return error(e.getMessage(), NOT_FOUND, e);
     }
 
-    @ExceptionHandler(value = IllegalStateException.class)
-    public ResponseEntity<?> handleIllegalStateException(IllegalStateException e){
-        final HttpStatus forbidden = FORBIDDEN;
-        final ApiException apiException = ApiException.builder()
-                .status(forbidden)
-                .message(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return new ResponseEntity<>(apiException, forbidden);
+    @ExceptionHandler(PermissaoNegadaError.class)
+    public ResponseEntity<ApiException> forbidden(PermissaoNegadaError e) {
+        return error(e.getMessage(), FORBIDDEN, e);
     }
 
-    @ExceptionHandler(value = EntityNotFoundException.class)
-    public ResponseEntity<?> handleEntityNotFoundException(EntityNotFoundException e){
-        final HttpStatus notFound = NOT_FOUND;
-        final ApiException apiException = ApiException.builder()
-                .status(notFound)
-                .message(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return new ResponseEntity<>(apiException, notFound);
+    @ExceptionHandler({OperacaoRedundanteError.class, TransicaoDeStatusInvalidaError.class,
+            ContratoNaoAtivoError.class, PendenciaFinanceiraError.class, ParcelaDuplicadaError.class,
+            PagamentoJaRegistradoError.class, EntityAlreadyExistsException.class})
+    public ResponseEntity<ApiException> conflict(RuntimeException e) {
+        return error(e.getMessage(), CONFLICT, e);
     }
 
-    @ExceptionHandler(value = EntityAlreadyExistsException.class)
-    public ResponseEntity<?> handleEntityAlreadyExistsException(EntityAlreadyExistsException e){
-        final HttpStatus conflict = CONFLICT;
-        final ApiException apiException = ApiException.builder()
-                .status(conflict)
-                .message(e.getMessage())
-                .developerMessage(e.getClass().getName())
-                .timestamp(ZonedDateTime.now(ZoneId.of("Z")))
-                .build();
-        return new ResponseEntity<>(apiException, conflict);
+    @ExceptionHandler({ValorInvalidoError.class, PeriodoInvalidoError.class, MetaInvalidaError.class,
+            MetaObrigatoriaError.class, IdentificacaoObrigatoriaError.class, ClubeObrigatorioError.class,
+            PatrocinadorObrigatorioError.class, PartesIguaisError.class, IllegalArgumentException.class})
+    public ResponseEntity<ApiException> invalid(RuntimeException e) {
+        return error(e.getMessage(), BAD_REQUEST, e);
+    }
+
+    @ExceptionHandler(MethodArgumentNotValidException.class)
+    public ResponseEntity<ApiException> validation(MethodArgumentNotValidException e) {
+        String message = e.getBindingResult().getFieldErrors().stream()
+                .map(field -> field.getField() + ": " + field.getDefaultMessage())
+                .sorted().collect(Collectors.joining("; "));
+        return error(message, BAD_REQUEST, e);
+    }
+
+    @ExceptionHandler({HttpMessageNotReadableException.class, MethodArgumentTypeMismatchException.class})
+    public ResponseEntity<ApiException> malformed(Exception e) {
+        return error("Requisição inválida. Verifique o JSON, as datas e os identificadores.", BAD_REQUEST, e);
+    }
+
+    private ResponseEntity<ApiException> error(String message, HttpStatus status, Exception e) {
+        return ResponseEntity.status(status).body(new ApiException(message, status,
+                ZonedDateTime.now(ZoneOffset.UTC), e.getClass().getSimpleName()));
     }
 }

@@ -2,7 +2,6 @@ package br.ifsp.edu.scl.patrocinioesportivo.controller;
 
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
 import io.swagger.v3.oas.annotations.tags.Tag;
-import lombok.AllArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
@@ -10,11 +9,14 @@ import java.util.UUID;
 
 @RestController
 @RequestMapping(path = "/api/v1/hello")
-@AllArgsConstructor
 @Tag(name = "Hello API")
 public class TransactionController {
 
     private final AuthenticationInfoService authService;
+
+    public TransactionController(AuthenticationInfoService authService) {
+        this.authService = authService;
+    }
 
     @GetMapping
     public ResponseEntity<String> hello() {

@@ -25,6 +25,14 @@ public class ParcelaDePagamento {
         this.paga = false;
     }
 
+    public static ParcelaDePagamento reconstituir(int numero, BigDecimal valor, LocalDate vencimento,
+                                                boolean paga, LocalDate dataPagamento) {
+        ParcelaDePagamento parcela = new ParcelaDePagamento(numero, valor, vencimento);
+        parcela.paga = paga;
+        parcela.dataPagamento = dataPagamento;
+        return parcela;
+    }
+
     public void registrarPagamento() {
         this.paga = true;
     }
