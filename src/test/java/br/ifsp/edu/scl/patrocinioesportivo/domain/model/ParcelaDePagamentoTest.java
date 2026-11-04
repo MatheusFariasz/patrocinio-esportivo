@@ -11,7 +11,6 @@ import java.time.LocalDate;
 import static org.assertj.core.api.Assertions.assertThat;
 
 class ParcelaDePagamentoTest {
-
     @Test
     @Tag("UnitTest")
     @Tag("TDD")
@@ -72,6 +71,18 @@ class ParcelaDePagamentoTest {
                 );
 
         parcela.registrarPagamento();
+
+        assertThat(parcela.isEmAtraso(LocalDate.of(2026, 10, 9)))
+                .isFalse();
+    }
+
+    @Test
+    @Tag("UnitTest")
+    @Tag("Structural")
+    @DisplayName("Não deve identificar parcela sem vencimento como em atraso")
+    void naoDeveIdentificarParcelaSemVencimentoComoEmAtraso() {
+        ParcelaDePagamento parcela =
+                new ParcelaDePagamento(1, new BigDecimal("1000.00"));
 
         assertThat(parcela.isEmAtraso(LocalDate.of(2026, 10, 9)))
                 .isFalse();
