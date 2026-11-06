@@ -8,10 +8,15 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.DefaultSecurityFilterChain;
 
+
+import java.util.Optional;
+import java.util.UUID;
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.*;
 import static org.assertj.core.api.Assertions.*;
@@ -122,5 +127,24 @@ class GabrielMutationTest {
 
         assertThat(config.securityFilterChain(http)).isSameAs(cadeia);
         verify(http).build();
+    }
+
+    @Test
+    void providerDeveAutenticarUsandoOUsuarioDoRepositorio() {
+        var repository = mock(UserRepository.class);
+        var encoder = new BCryptPasswordEncoder();
+        var usuario = new User(UUID.randomUUID(), "Ana", "Silva", "ana@teste.com",
+                encoder.encode("Senha123!"), Role.USER);
+        when(repository.findByEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
+        var provider = provider(new ApplicationConfig(repository));
+        assertThat(provider).isNotNull();
+
+        var autenticacao = provider.authenticate(
+                new UsernamePasswordAuthenticationToken(usuario.getEmail(), "Senha123!"));
+
+        assertThat(autenticacao).isNotNull();
+        assertThat(autenticacao.isAuthenticated()).isTrue();
+        assertThat(autenticacao.getPrincipal()).isSameAs(usuario);
+        verify(repository).findByEmail(usuario.getEmail());
     }
 }
