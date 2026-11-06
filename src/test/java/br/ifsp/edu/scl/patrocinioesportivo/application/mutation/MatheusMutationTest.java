@@ -13,8 +13,12 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.validation.BeanPropertyBindingResult;
+import org.springframework.validation.FieldError;
+import org.springframework.web.bind.MethodArgumentNotValidException;
 
 import java.math.BigDecimal;
 import java.time.LocalDate;
@@ -145,5 +149,24 @@ class MatheusMutationTest {
         assertThat(resposta.getBody().message()).isEqualTo("valor inválido");
         assertThat(resposta.getBody().status()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(resposta.getBody().developerMessage()).isEqualTo("ValorInvalidoError");
+    }
+
+    private static void entrada(Object request) {}
+
+    @Test
+    void ValidacaoDeveInformarNomeEMensagemDeCadaCampo() throws Exception {
+        var binding = new BeanPropertyBindingResult(new Object(), "request");
+        binding.addError(new FieldError("request", "valor", "deve ser positivo"));
+        binding.addError(new FieldError("request", "meta", "deve ser positiva"));
+        var parametro = new MethodParameter(
+                MatheusMutationTest.class.getDeclaredMethod("entrada", Object.class), 0);
+        var erro = new MethodArgumentNotValidException(parametro, binding);
+
+        var resposta = new ApiExceptionHandler().validation(erro);
+
+        assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resposta.getBody()).isNotNull();
+        assertThat(resposta.getBody().message())
+                .isEqualTo("meta: deve ser positiva; valor: deve ser positivo");
     }
 }
