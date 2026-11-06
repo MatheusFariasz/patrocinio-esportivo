@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
 import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.EditarPropostaRequest;
+import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.RenovarContratoRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
@@ -107,5 +108,29 @@ class MatheusMutationTest {
         assertThat(resposta.termino()).isEqualTo(request.termino());
         assertThat(resposta.meta()).isEqualByComparingTo(request.meta());
         verify(editar).editar(7L, request.valor(), request.inicio(), request.termino(), request.meta());
+    }
+
+    @Test
+    void RenovacaoDeveRetornarContratoParcelasEHistorico() {
+        var consultar = mock(ConsultarContratoService.class);
+        var renovar = mock(RenovarContratoDePatrocinioService.class);
+        var renovado = contrato(StatusContrato.ATIVO);
+        when(consultar.consultar(7L)).thenReturn(renovado);
+        var controller = contratos(consultar, mock(RegistrarPagamentoService.class),
+                mock(EncerrarContratoService.class), renovar);
+
+        var resposta = controller.renovar(7L, new RenovarContratoRequest(3, valor("500")));
+
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.id()).isEqualTo(7L);
+        assertThat(resposta.status()).isEqualTo(StatusContrato.ATIVO);
+        assertThat(resposta.inicio()).isEqualTo(renovado.getPeriodoContratual().inicio());
+        assertThat(resposta.termino()).isEqualTo(renovado.getPeriodoContratual().termino());
+        assertThat(resposta.meta()).isEqualByComparingTo("500");
+        assertThat(resposta.parcelas()).hasSize(1);
+        assertThat(resposta.parcelas().getFirst().numero()).isEqualTo(7);
+        assertThat(resposta.historico()).hasSize(1);
+        assertThat(resposta.historico().getFirst().inicio()).isEqualTo(historico(0).periodo().inicio());
+        verify(renovar).renovar(7L, 3, valor("500"));
     }
 }
