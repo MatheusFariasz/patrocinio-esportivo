@@ -27,3 +27,19 @@ test("403 informa falta de permissão sem encerrar a sessão", async () => {
   assert.equal(expired, false);
 });
 
+test("401 em uma chamada autenticada encerra a sessão", async () => {
+  let expired = false;
+  const api = createApi({
+    getToken: () => "token",
+    onExpired: () => {
+      expired = true;
+    },
+    fetcher: async () => new Response("", { status: 401 }),
+  });
+  await assert.rejects(
+    api("/api/v1/contratos/1"),
+    (error) => error.status === 401,
+  );
+  assert.equal(expired, true);
+});
+
