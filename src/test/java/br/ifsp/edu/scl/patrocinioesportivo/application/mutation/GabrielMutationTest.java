@@ -45,4 +45,21 @@ class GabrielMutationTest {
         assertThat(resposta.parcelas().getFirst().numero()).isEqualTo(7);
         verify(aprovar).aprovar(PerfilUsuario.DIRETOR_FINANCEIRO, 7L);
     }
+
+    @Test
+    void CancelamentoDeveRetornarAPropostaCancelada() {
+        var consultar = mock(ConsultarContratoService.class);
+        var cancelar = mock(CancelarPropostaService.class);
+        when(consultar.consultar(7L)).thenReturn(contrato(StatusContrato.CANCELADO));
+        var controller = propostas(consultar, mock(EditarPropostaService.class),
+                mock(AprovarPropostaService.class), cancelar, mock(AuthenticationInfoService.class));
+
+        var resposta = controller.cancelar(7L);
+
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.id()).isEqualTo(7L);
+        assertThat(resposta.status()).isEqualTo(StatusContrato.CANCELADO);
+        assertThat(resposta.parcelas()).isEmpty();
+        verify(cancelar).cancelar(7L);
+    }
 }
