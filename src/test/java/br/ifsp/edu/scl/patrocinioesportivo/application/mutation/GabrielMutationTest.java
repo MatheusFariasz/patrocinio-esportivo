@@ -18,7 +18,7 @@ import static org.mockito.Mockito.*;
 class GabrielMutationTest {
 
     @Test
-    void HashDaParcelaDeveSerCalculadoPeloNumero() {
+    void hashDaParcelaDeveSerCalculadoPeloNumero() {
         var primeira = new ParcelaDePagamento(7, valor("100"));
         var mesmaIdentidade = new ParcelaDePagamento(7, valor("200"));
         assertThat(primeira).isEqualTo(mesmaIdentidade);
@@ -27,7 +27,7 @@ class GabrielMutationTest {
     }
 
     @Test
-    void AprovacaoDeveRetornarOContratoAtivo() {
+    void aprovacaoDeveRetornarOContratoAtivo() {
         var consultar = mock(ConsultarContratoService.class);
         var aprovar = mock(AprovarPropostaService.class);
         var auth = mock(AuthenticationInfoService.class);
@@ -47,7 +47,7 @@ class GabrielMutationTest {
     }
 
     @Test
-    void CancelamentoDeveRetornarAPropostaCancelada() {
+    void cancelamentoDeveRetornarAPropostaCancelada() {
         var consultar = mock(ConsultarContratoService.class);
         var cancelar = mock(CancelarPropostaService.class);
         when(consultar.consultar(7L)).thenReturn(contrato(StatusContrato.CANCELADO));
@@ -61,5 +61,22 @@ class GabrielMutationTest {
         assertThat(resposta.status()).isEqualTo(StatusContrato.CANCELADO);
         assertThat(resposta.parcelas()).isEmpty();
         verify(cancelar).cancelar(7L);
+    }
+
+    @Test
+    void encerramentoDeveRetornarStatusEMulta() {
+        var consultar = mock(ConsultarContratoService.class);
+        var encerrar = mock(EncerrarContratoService.class);
+        when(consultar.consultar(7L)).thenReturn(contrato(StatusContrato.ENCERRADO));
+        var controller = contratos(consultar, mock(RegistrarPagamentoService.class), encerrar,
+                mock(RenovarContratoDePatrocinioService.class));
+
+        var resposta = controller.encerrar(7L);
+
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.id()).isEqualTo(7L);
+        assertThat(resposta.status()).isEqualTo(StatusContrato.ENCERRADO);
+        assertThat(resposta.multaRescisoria()).isEqualByComparingTo("200");
+        verify(encerrar).encerrar(7L);
     }
 }
