@@ -108,7 +108,7 @@ public class ViniciusMutationTest {
     }
 
     @Test
-    void t19CadastroDuplicadoNaoDeveCodificarNemSalvar() {
+    void cadastroDuplicadoNaoDeveCodificarNemSalvar() {
         var repository = mock(UserRepository.class);
         var encoder = mock(PasswordEncoder.class);
         var existente = usuario(Role.USER);
