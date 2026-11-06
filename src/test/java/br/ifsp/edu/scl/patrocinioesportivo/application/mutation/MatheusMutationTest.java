@@ -1,6 +1,7 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
 import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.EditarPropostaRequest;
+import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.HistoricoResponse;
 import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.RenovarContratoRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.ApiExceptionHandler;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
@@ -218,5 +219,24 @@ class MatheusMutationTest {
         assertThat(scheme.getType()).isEqualTo(SecurityScheme.Type.HTTP);
         assertThat(scheme.getScheme()).isEqualTo("bearer");
         assertThat(scheme.getBearerFormat()).isEqualTo("JWT");
+    }
+
+    @Test
+    void RespostaDoHistoricoDevePreservarTodosOsDados() {
+        var original = historico(1);
+        var resposta = HistoricoResponse.de(original);
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.inicio()).isEqualTo(original.periodo().inicio());
+        assertThat(resposta.termino()).isEqualTo(original.periodo().termino());
+        assertThat(resposta.meta()).isEqualByComparingTo(original.meta().valor());
+        assertThat(resposta.exposicaoAcumulada()).isEqualByComparingTo(original.exposicaoAcumulada());
+        assertThat(resposta.parcelas()).hasSize(1);
+        var parcela = resposta.parcelas().getFirst();
+        var esperada = original.parcelas().getFirst();
+        assertThat(parcela.numero()).isEqualTo(esperada.getNumero());
+        assertThat(parcela.valor()).isEqualByComparingTo(esperada.getValor());
+        assertThat(parcela.vencimento()).isEqualTo(esperada.getVencimento());
+        assertThat(parcela.paga()).isTrue();
+        assertThat(parcela.dataPagamento()).isEqualTo(esperada.getDataPagamento());
     }
 }
