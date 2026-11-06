@@ -1,9 +1,11 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
+import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtAuthenticationFilter;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.User;
+import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Tag;
@@ -86,5 +88,15 @@ public class ViniciusMutationTest {
         var json = new ObjectMapper().readTree(response.getContentAsString());
         assertThat(json.get("error").asText()).isEqualTo("JWT is not valid or is expired.");
         verifyNoInteractions(chain);
+    }
+
+    @Test
+    void encoderDeveCodificarEConferirASenha() {
+        var encoder = new ApplicationConfig(mock(UserRepository.class)).passwordEncoder();
+        assertThat(encoder).isNotNull();
+        String hash = encoder.encode("Senha123!");
+        assertThat(hash).isNotEqualTo("Senha123!");
+        assertThat(encoder.matches("Senha123!", hash)).isTrue();
+        assertThat(encoder.matches("incorreta", hash)).isFalse();
     }
 }
