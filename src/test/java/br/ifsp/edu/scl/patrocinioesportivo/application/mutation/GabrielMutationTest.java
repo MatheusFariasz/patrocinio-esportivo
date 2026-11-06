@@ -7,6 +7,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.user.*;
 import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.core.GrantedAuthority;
 
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.*;
@@ -100,5 +101,11 @@ class GabrielMutationTest {
         assertThat(parcela.paga()).isTrue();
         assertThat(parcela.dataPagamento()).isEqualTo(pago.getParcelas().getFirst().getDataPagamento());
         verify(pagamento).registrar(7L, 7);
+    }
+
+    @Test
+    void usuarioUserDeveTerAutoridadeUser() {
+        assertThat(usuario(Role.USER).getAuthorities())
+                .extracting(GrantedAuthority::getAuthority).containsExactly("USER");
     }
 }
