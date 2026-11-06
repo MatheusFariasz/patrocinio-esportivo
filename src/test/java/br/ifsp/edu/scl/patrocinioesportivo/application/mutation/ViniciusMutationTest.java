@@ -13,10 +13,12 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.user.User;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarExposicaoService;
 import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarPagamentoService;
+import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.mockito.ArgumentMatchers;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
@@ -30,7 +32,9 @@ import pitest.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Date;
 import java.util.Optional;
+import java.util.function.Function;
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.usuario;
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.valor;
@@ -150,5 +154,18 @@ public class ViniciusMutationTest {
                 .isInstanceOf(ContratoInexistenteError.class).hasMessage("Contrato não encontrado.");
 
         verify(repository, never()).salvar(any());
+    }
+
+    @Test
+    void deveConferirAExpiracaoAposALeituraDosClaims() {
+        var jwt = spy(new JwtService());
+        var usuario = usuario(Role.USER);
+        doReturn(usuario.getEmail()).when(jwt).extractUsername("token");
+
+        doReturn(new Date(System.currentTimeMillis() - 86_400_000L)).when(jwt).extractClaim(eq("token"), any());
+        assertThat(jwt.isTokenValid("token", usuario)).isFalse();
+
+        doReturn(new Date(System.currentTimeMillis() + 86_400_000L)).when(jwt).extractClaim(eq("token"), any());
+        assertThat(jwt.isTokenValid("token", usuario)).isTrue();
     }
 }
