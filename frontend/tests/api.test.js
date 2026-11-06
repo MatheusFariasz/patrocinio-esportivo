@@ -43,3 +43,29 @@ test("401 em uma chamada autenticada encerra a sessão", async () => {
   assert.equal(expired, true);
 });
 
+test("login não envia o token anterior e mostra o erro de credenciais", async () => {
+  const api = createApi({
+    getToken: () => "antigo",
+    onExpired: () => assert.fail("Não deve expirar"),
+    fetcher: async (_url, options) => {
+      assert.equal(options.headers.Authorization, undefined);
+      assert.equal(
+        options.body,
+        JSON.stringify({ username: "ana@teste.com", password: "errada" }),
+      );
+      return new Response(
+        JSON.stringify({ message: "Credenciais inválidas." }),
+        { status: 401 },
+      );
+    },
+  });
+  await assert.rejects(
+    api("/api/v1/authenticate", {
+      method: "POST",
+      authenticated: false,
+      body: { username: "ana@teste.com", password: "errada" },
+    }),
+    /Credenciais inválidas/,
+  );
+});
+
