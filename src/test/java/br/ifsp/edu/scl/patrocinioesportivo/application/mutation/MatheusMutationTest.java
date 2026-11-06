@@ -45,7 +45,7 @@ import static org.mockito.Mockito.*;
 class MatheusMutationTest {
 
     @Test
-    void DuracaoZeroNaoDeveRenovarNemMudarParaEmRisco() {
+    void duracaoZeroNaoDeveRenovarNemMudarParaEmRisco() {
         for (BigDecimal exposicao : List.of(BigDecimal.ZERO, valor("500"))) {
             var repository = mock(ContratoDePatrocinioRepository.class);
             var service = new RenovarContratoDePatrocinioService(repository);
@@ -78,7 +78,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void DeveGravarDoisCiclosDistintosNoHistorico() {
+    void deveGravarDoisCiclosDistintosNoHistorico() {
         var jdbc = mock(JdbcTemplate.class);
         when(jdbc.update(anyString(), any(Object[].class))).thenReturn(1);
         var atual = contrato(StatusContrato.ATIVO);
@@ -104,7 +104,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void EdicaoDeveRetornarOsDadosDaProposta() {
+    void edicaoDeveRetornarOsDadosDaProposta() {
         var consultar = mock(ConsultarContratoService.class);
         var editar = mock(EditarPropostaService.class);
         var proposta = contrato(StatusContrato.PENDENTE);
@@ -128,7 +128,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void RenovacaoDeveRetornarContratoParcelasEHistorico() {
+    void renovacaoDeveRetornarContratoParcelasEHistorico() {
         var consultar = mock(ConsultarContratoService.class);
         var renovar = mock(RenovarContratoDePatrocinioService.class);
         var renovado = contrato(StatusContrato.ATIVO);
@@ -152,7 +152,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void DadoInvalidoDeveRetornarCorpoComErro400() {
+    void dadoInvalidoDeveRetornarCorpoComErro400() {
         var resposta = new ApiExceptionHandler().invalid(new ValorInvalidoError("valor inválido"));
         assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
         assertThat(resposta.getBody()).isNotNull();
@@ -164,7 +164,7 @@ class MatheusMutationTest {
     private static void entrada(Object request) {}
 
     @Test
-    void ValidacaoDeveInformarNomeEMensagemDeCadaCampo() throws Exception {
+    void validacaoDeveInformarNomeEMensagemDeCadaCampo() throws Exception {
         var binding = new BeanPropertyBindingResult(new Object(), "request");
         binding.addError(new FieldError("request", "valor", "deve ser positivo"));
         binding.addError(new FieldError("request", "meta", "deve ser positiva"));
@@ -181,7 +181,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void DeveRetornarOAuthenticationManagerConfigurado() throws Exception {
+    void deveRetornarOAuthenticationManagerConfigurado() throws Exception {
         var origem = mock(AuthenticationConfiguration.class);
         var manager = mock(AuthenticationManager.class);
         when(origem.getAuthenticationManager()).thenReturn(manager);
@@ -190,7 +190,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void DeveBuscarUsuarioPeloEmail() {
+    void deveBuscarUsuarioPeloEmail() {
         var repository = mock(UserRepository.class);
         var usuario = usuario(Role.USER);
         when(repository.findByEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
@@ -201,7 +201,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void UsuarioAusenteDeveGerarAExcecaoCorreta() {
+    void usuarioAusenteDeveGerarAExcecaoCorreta() {
         var repository = mock(UserRepository.class);
         when(repository.findByEmail("ausente@teste.com")).thenReturn(Optional.empty());
         var service = new ApplicationConfig(repository).userDetailsService();
@@ -211,7 +211,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void SwaggerDeveTerInformacoesEAutenticacaoBearer() {
+    void swaggerDeveTerInformacoesEAutenticacaoBearer() {
         var api = new OpenApiConfiguration().patrocinioOpenApi();
         assertThat(api).isNotNull();
         assertThat(api.getInfo().getTitle()).isEqualTo("Patrocínio esportivo");
@@ -223,7 +223,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void RespostaDoHistoricoDevePreservarTodosOsDados() {
+    void respostaDoHistoricoDevePreservarTodosOsDados() {
         var original = historico(1);
         var resposta = HistoricoResponse.de(original);
         assertThat(resposta).isNotNull();
@@ -242,7 +242,7 @@ class MatheusMutationTest {
     }
 
     @Test
-    void PatrocinadorAusenteNaoPodeSerConsideradoExistente() {
+    void patrocinadorAusenteNaoPodeSerConsideradoExistente() {
         for (boolean existe : List.of(false, true)) {
             var jdbc = mock(JdbcTemplate.class);
             when(jdbc.queryForObject(anyString(), eq(Boolean.class), eq(99L))).thenReturn(existe);
