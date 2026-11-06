@@ -10,9 +10,11 @@ import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioReposi
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
+import br.ifsp.edu.scl.patrocinioesportivo.security.config.OpenApiConfiguration;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.service.*;
+import io.swagger.v3.oas.models.security.SecurityScheme;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -204,5 +206,17 @@ class MatheusMutationTest {
         assertThat(service).isNotNull();
         assertThatThrownBy(() -> service.loadUserByUsername("ausente@teste.com"))
                 .isInstanceOf(UsernameNotFoundException.class).hasMessage("User not found!");
+    }
+
+    @Test
+    void SwaggerDeveTerInformacoesEAutenticacaoBearer() {
+        var api = new OpenApiConfiguration().patrocinioOpenApi();
+        assertThat(api).isNotNull();
+        assertThat(api.getInfo().getTitle()).isEqualTo("Patrocínio esportivo");
+        assertThat(api.getInfo().getVersion()).isEqualTo("v1");
+        var scheme = api.getComponents().getSecuritySchemes().get("bearerAuth");
+        assertThat(scheme.getType()).isEqualTo(SecurityScheme.Type.HTTP);
+        assertThat(scheme.getScheme()).isEqualTo("bearer");
+        assertThat(scheme.getBearerFormat()).isEqualTo("JWT");
     }
 }
