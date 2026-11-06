@@ -29,7 +29,7 @@ public class ApplicationConfig {
     }
 
     @Bean
-    AuthenticationProvider authenticatorProvider() {
+    public AuthenticationProvider authenticatorProvider() {
         final DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider();
         authProvider.setUserDetailsService(userDetailsService());
         authProvider.setPasswordEncoder(passwordEncoder());
