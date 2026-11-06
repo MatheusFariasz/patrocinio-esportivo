@@ -69,3 +69,21 @@ test("login não envia o token anterior e mostra o erro de credenciais", async (
   );
 });
 
+test("falha de conexão tem mensagem utilizável e abort não vira erro de rede", async () => {
+  const api = createApi({
+    getToken: () => null,
+    onExpired() {},
+    fetcher: async () => {
+      throw new TypeError("Failed to fetch");
+    },
+  });
+  await assert.rejects(api("/api"), /conectar ao servidor/);
+  const aborted = createApi({
+    getToken: () => null,
+    onExpired() {},
+    fetcher: async () => {
+      throw new DOMException("Cancelado", "AbortError");
+    },
+  });
+  await assert.rejects(aborted("/api"), (error) => error.name === "AbortError");
+});
