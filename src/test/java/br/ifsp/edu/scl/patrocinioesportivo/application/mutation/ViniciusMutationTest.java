@@ -1,5 +1,8 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.EntityAlreadyExistsException;
+import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationService;
+import br.ifsp.edu.scl.patrocinioesportivo.security.auth.RegisterUserRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtAuthenticationFilter;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtService;
@@ -13,17 +16,21 @@ import org.junit.jupiter.api.Test;
 import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
+import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.util.ReflectionTestUtils;
 import pitest.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
+import java.util.Optional;
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.usuario;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
+import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
 
 @Tag("UnitTest")
@@ -98,5 +105,23 @@ public class ViniciusMutationTest {
         assertThat(hash).isNotEqualTo("Senha123!");
         assertThat(encoder.matches("Senha123!", hash)).isTrue();
         assertThat(encoder.matches("incorreta", hash)).isFalse();
+    }
+
+    @Test
+    void t19CadastroDuplicadoNaoDeveCodificarNemSalvar() {
+        var repository = mock(UserRepository.class);
+        var encoder = mock(PasswordEncoder.class);
+        var existente = usuario(Role.USER);
+        when(repository.findByEmail(existente.getEmail())).thenReturn(Optional.of(existente));
+        var service = new AuthenticationService(repository, encoder, mock(JwtService.class),
+                mock(AuthenticationManager.class));
+        var request = new RegisterUserRequest("Ana", "Silva", existente.getEmail(), "Senha123!");
+
+        assertThatThrownBy(() -> service.register(request))
+                .isInstanceOf(EntityAlreadyExistsException.class)
+                .hasMessage("Email already registered: " + existente.getEmail());
+
+        verify(repository, never()).save(any(User.class));
+        verifyNoInteractions(encoder);
     }
 }
