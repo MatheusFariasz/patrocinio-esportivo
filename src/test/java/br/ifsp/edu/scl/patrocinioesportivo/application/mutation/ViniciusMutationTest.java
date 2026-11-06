@@ -4,6 +4,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtAuthenticationFilt
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.User;
+import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -14,6 +15,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.util.ReflectionTestUtils;
+import pitest.fasterxml.jackson.databind.ObjectMapper;
 
 import java.nio.charset.StandardCharsets;
 import java.util.Base64;
@@ -66,5 +68,23 @@ public class ViniciusMutationTest {
         assertThat(detalhes.getRemoteAddress()).isEqualTo("192.0.2.10");
         assertThat(detalhes.getSessionId()).isEqualTo("sessao-teste");
         verify(chain).doFilter(request, response);
+    }
+
+    @Test
+    void jwtInvalidoDeveRetornarErro() throws Exception {
+        var jwt = mock(JwtService.class);
+        when(jwt.extractUsername("invalido")).thenThrow(new JwtException("token inválido"));
+        var request = new MockHttpServletRequest();
+        request.addHeader("Authorization", "Bearer invalido");
+        var response = new MockHttpServletResponse();
+        var chain = mock(FilterChain.class);
+
+        new JwtAuthenticationFilter(jwt, mock(UserDetailsService.class)).doFilter(request, response, chain);
+
+        assertThat(response.getStatus()).isEqualTo(401);
+        assertThat(response.getContentType()).isEqualTo("application/json");
+        var json = new ObjectMapper().readTree(response.getContentAsString());
+        assertThat(json.get("error").asText()).isEqualTo("JWT is not valid or is expired.");
+        verifyNoInteractions(chain);
     }
 }
