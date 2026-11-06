@@ -79,4 +79,26 @@ class GabrielMutationTest {
         assertThat(resposta.multaRescisoria()).isEqualByComparingTo("200");
         verify(encerrar).encerrar(7L);
     }
+
+    @Test
+    void pagamentoDeveRetornarParcelaPagaComData() {
+        var consultar = mock(ConsultarContratoService.class);
+        var pagamento = mock(RegistrarPagamentoService.class);
+        var pago = contrato(StatusContrato.ATIVO);
+        when(consultar.consultar(7L)).thenReturn(pago);
+        var controller = contratos(consultar, pagamento, mock(EncerrarContratoService.class),
+                mock(RenovarContratoDePatrocinioService.class));
+
+        var resposta = controller.registrarPagamento(7L, 7);
+
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.id()).isEqualTo(7L);
+        assertThat(resposta.parcelas()).hasSize(1);
+        var parcela = resposta.parcelas().getFirst();
+        assertThat(parcela.numero()).isEqualTo(7);
+        assertThat(parcela.valor()).isEqualByComparingTo("1000");
+        assertThat(parcela.paga()).isTrue();
+        assertThat(parcela.dataPagamento()).isEqualTo(pago.getParcelas().getFirst().getDataPagamento());
+        verify(pagamento).registrar(7L, 7);
+    }
 }
