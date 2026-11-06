@@ -1,6 +1,8 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ContratoInexistenteError;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.EntityAlreadyExistsException;
+import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.RegisterUserRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
@@ -9,6 +11,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.User;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
+import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarPagamentoService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
 import org.junit.jupiter.api.Tag;
@@ -123,5 +126,16 @@ public class ViniciusMutationTest {
 
         verify(repository, never()).save(any(User.class));
         verifyNoInteractions(encoder);
+    }
+
+    @Test
+    void pagamentoEmContratoAusenteDeveInformarOErroCorreto() {
+        var repository = mock(ContratoDePatrocinioRepository.class);
+        when(repository.buscarPorId(7L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> new RegistrarPagamentoService(repository).registrar(7L, 1))
+                .isInstanceOf(ContratoInexistenteError.class).hasMessage("Contrato não encontrado.");
+
+        verify(repository, never()).salvar(any());
     }
 }
