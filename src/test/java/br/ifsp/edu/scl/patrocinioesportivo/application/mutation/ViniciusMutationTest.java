@@ -11,6 +11,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.config.JwtService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.User;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
+import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarExposicaoService;
 import br.ifsp.edu.scl.patrocinioesportivo.service.RegistrarPagamentoService;
 import io.jsonwebtoken.JwtException;
 import jakarta.servlet.FilterChain;
@@ -32,6 +33,7 @@ import java.util.Base64;
 import java.util.Optional;
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.usuario;
+import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.valor;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThat;
 import static org.assertj.core.api.AssertionsForClassTypes.assertThatThrownBy;
 import static org.mockito.Mockito.*;
@@ -134,6 +136,17 @@ public class ViniciusMutationTest {
         when(repository.buscarPorId(7L)).thenReturn(Optional.empty());
 
         assertThatThrownBy(() -> new RegistrarPagamentoService(repository).registrar(7L, 1))
+                .isInstanceOf(ContratoInexistenteError.class).hasMessage("Contrato não encontrado.");
+
+        verify(repository, never()).salvar(any());
+    }
+
+    @Test
+    void exposicaoEmContratoAusenteDeveInformarOErroCorreto() {
+        var repository = mock(ContratoDePatrocinioRepository.class);
+        when(repository.buscarPorId(7L)).thenReturn(Optional.empty());
+
+        assertThatThrownBy(() -> new RegistrarExposicaoService(repository).registrar(7L, valor("10")))
                 .isInstanceOf(ContratoInexistenteError.class).hasMessage("Contrato não encontrado.");
 
         verify(repository, never()).salvar(any());
