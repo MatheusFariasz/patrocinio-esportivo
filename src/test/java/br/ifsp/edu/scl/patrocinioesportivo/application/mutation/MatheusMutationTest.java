@@ -9,6 +9,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
+import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcPatrocinadorRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.OpenApiConfiguration;
@@ -238,5 +239,14 @@ class MatheusMutationTest {
         assertThat(parcela.vencimento()).isEqualTo(esperada.getVencimento());
         assertThat(parcela.paga()).isTrue();
         assertThat(parcela.dataPagamento()).isEqualTo(esperada.getDataPagamento());
+    }
+
+    @Test
+    void PatrocinadorAusenteNaoPodeSerConsideradoExistente() {
+        for (boolean existe : List.of(false, true)) {
+            var jdbc = mock(JdbcTemplate.class);
+            when(jdbc.queryForObject(anyString(), eq(Boolean.class), eq(99L))).thenReturn(existe);
+            assertThat(new JdbcPatrocinadorRepository(jdbc).existePorId(99L)).isEqualTo(existe);
+        }
     }
 }
