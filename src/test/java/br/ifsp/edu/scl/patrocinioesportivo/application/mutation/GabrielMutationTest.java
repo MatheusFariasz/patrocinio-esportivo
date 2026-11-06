@@ -7,7 +7,10 @@ import br.ifsp.edu.scl.patrocinioesportivo.security.user.*;
 import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
+import org.springframework.security.authentication.AuthenticationProvider;
+import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.core.GrantedAuthority;
+import org.springframework.security.web.DefaultSecurityFilterChain;
 
 
 import static br.ifsp.edu.scl.patrocinioesportivo.application.mutation.DadosMutacao.*;
@@ -107,5 +110,17 @@ class GabrielMutationTest {
     void usuarioUserDeveTerAutoridadeUser() {
         assertThat(usuario(Role.USER).getAuthorities())
                 .extracting(GrantedAuthority::getAuthority).containsExactly("USER");
+    }
+
+    @Test
+    void configuracaoDeveRetornarACadeiaConstruida() throws Exception {
+        var http = mock(HttpSecurity.class, RETURNS_SELF);
+        var cadeia = mock(DefaultSecurityFilterChain.class);
+        when(http.build()).thenReturn(cadeia);
+        var config = new SecurityConfiguration(mock(JwtAuthenticationFilter.class),
+                mock(AuthenticationProvider.class));
+
+        assertThat(config.securityFilterChain(http)).isSameAs(cadeia);
+        verify(http).build();
     }
 }
