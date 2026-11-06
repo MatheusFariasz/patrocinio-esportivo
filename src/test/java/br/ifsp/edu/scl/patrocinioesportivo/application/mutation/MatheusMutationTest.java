@@ -1,10 +1,12 @@
 package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
+import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.EditarPropostaRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
-import br.ifsp.edu.scl.patrocinioesportivo.service.RenovarContratoDePatrocinioService;
+import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
+import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -81,5 +83,29 @@ class MatheusMutationTest {
         verify(jdbc, times(3)).update(contains("INSERT INTO parcela_pagamento"), parcelas.capture());
         assertThat(parcelas.getAllValues()).extracting(args -> args[1]).containsExactly(0, 1, 2);
         assertThat(parcelas.getAllValues()).extracting(args -> args[2]).containsExactly(7, 1, 2);
+    }
+
+    @Test
+    void EdicaoDeveRetornarOsDadosDaProposta() {
+        var consultar = mock(ConsultarContratoService.class);
+        var editar = mock(EditarPropostaService.class);
+        var proposta = contrato(StatusContrato.PENDENTE);
+        when(consultar.consultar(7L)).thenReturn(proposta);
+        var controller = propostas(consultar, editar, mock(AprovarPropostaService.class),
+                mock(CancelarPropostaService.class), mock(AuthenticationInfoService.class));
+        var request = new EditarPropostaRequest(proposta.getValorTotal(),
+                proposta.getPeriodoContratual().inicio(), proposta.getPeriodoContratual().termino(),
+                proposta.getMetaContratual().valor());
+
+        var resposta = controller.editar(7L, request);
+
+        assertThat(resposta).isNotNull();
+        assertThat(resposta.id()).isEqualTo(7L);
+        assertThat(resposta.status()).isEqualTo(StatusContrato.PENDENTE);
+        assertThat(resposta.valorTotal()).isEqualByComparingTo(request.valor());
+        assertThat(resposta.inicio()).isEqualTo(request.inicio());
+        assertThat(resposta.termino()).isEqualTo(request.termino());
+        assertThat(resposta.meta()).isEqualByComparingTo(request.meta());
+        verify(editar).editar(7L, request.valor(), request.inicio(), request.termino(), request.meta());
     }
 }
