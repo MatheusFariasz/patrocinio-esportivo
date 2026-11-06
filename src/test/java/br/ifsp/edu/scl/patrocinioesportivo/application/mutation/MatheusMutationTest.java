@@ -2,7 +2,9 @@ package br.ifsp.edu.scl.patrocinioesportivo.application.mutation;
 
 import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.EditarPropostaRequest;
 import br.ifsp.edu.scl.patrocinioesportivo.controller.dto.RenovarContratoRequest;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ApiExceptionHandler;
 import br.ifsp.edu.scl.patrocinioesportivo.exception.PeriodoInvalidoError;
+import br.ifsp.edu.scl.patrocinioesportivo.exception.ValorInvalidoError;
 import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
@@ -11,6 +13,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
+import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 
 import java.math.BigDecimal;
@@ -132,5 +135,15 @@ class MatheusMutationTest {
         assertThat(resposta.historico()).hasSize(1);
         assertThat(resposta.historico().getFirst().inicio()).isEqualTo(historico(0).periodo().inicio());
         verify(renovar).renovar(7L, 3, valor("500"));
+    }
+
+    @Test
+    void DadoInvalidoDeveRetornarCorpoComErro400() {
+        var resposta = new ApiExceptionHandler().invalid(new ValorInvalidoError("valor inválido"));
+        assertThat(resposta.getStatusCode()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resposta.getBody()).isNotNull();
+        assertThat(resposta.getBody().message()).isEqualTo("valor inválido");
+        assertThat(resposta.getBody().status()).isEqualTo(HttpStatus.BAD_REQUEST);
+        assertThat(resposta.getBody().developerMessage()).isEqualTo("ValorInvalidoError");
     }
 }
