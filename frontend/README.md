@@ -92,7 +92,3 @@ tests/            Testes do cliente HTTP
 vite.config.js    Portas e proxy da API
 .env.example      Exemplo de configuração local
 ```
-
-## Referências
-
-A organização em páginas, cliente HTTP e sessão centralizada foi inspirada nos projetos [Melhor Amigo Animal Care](https://github.com/KaiqueGalera/MelhorAmigoAnimalCare) e [Sistema de Reserva de Barbearia](https://github.com/LucasLotumolo/sistema-reserva-barbearia), indicados pela equipe. A interface foi desenvolvida para o domínio de patrocínios, com identidade visual própria. O projeto segue a licença GPL-3.0 do repositório.
