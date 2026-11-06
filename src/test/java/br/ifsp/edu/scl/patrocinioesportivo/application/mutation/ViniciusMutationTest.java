@@ -23,8 +23,12 @@ import org.springframework.mock.web.MockHttpServletRequest;
 import org.springframework.mock.web.MockHttpServletResponse;
 import org.springframework.mock.web.MockHttpSession;
 import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
+import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetailsService;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.web.authentication.WebAuthenticationDetails;
 import org.springframework.test.util.ReflectionTestUtils;
@@ -167,5 +171,25 @@ public class ViniciusMutationTest {
 
         doReturn(new Date(System.currentTimeMillis() + 86_400_000L)).when(jwt).extractClaim(eq("token"), any());
         assertThat(jwt.isTokenValid("token", usuario)).isTrue();
+    }
+
+    @Test
+    void providerDeveUsarOEncoderDaConfiguracao() {
+        var repository = mock(UserRepository.class);
+        var bcrypt = new BCryptPasswordEncoder();
+        var base = usuario(Role.USER);
+        var usuario = new User(base.getId(), "Ana", "Silva", base.getEmail(),
+                bcrypt.encode("senha"), Role.USER);
+        when(repository.findByEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
+
+        var provider = new ApplicationConfig(repository).authenticatorProvider();
+
+        var autenticacao = provider.authenticate(
+                new UsernamePasswordAuthenticationToken(usuario.getEmail(), "senha"));
+        assertThat(autenticacao.isAuthenticated()).isTrue();
+
+        assertThatThrownBy(() -> provider.authenticate(
+                new UsernamePasswordAuthenticationToken(usuario.getEmail(), "errada")))
+                .isInstanceOf(BadCredentialsException.class);
     }
 }
