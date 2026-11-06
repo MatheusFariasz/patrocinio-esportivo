@@ -21,6 +21,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -193,5 +194,15 @@ class MatheusMutationTest {
         assertThat(service).isNotNull();
         assertThat(service.loadUserByUsername(usuario.getEmail())).isSameAs(usuario);
         verify(repository).findByEmail(usuario.getEmail());
+    }
+
+    @Test
+    void UsuarioAusenteDeveGerarAExcecaoCorreta() {
+        var repository = mock(UserRepository.class);
+        when(repository.findByEmail("ausente@teste.com")).thenReturn(Optional.empty());
+        var service = new ApplicationConfig(repository).userDetailsService();
+        assertThat(service).isNotNull();
+        assertThatThrownBy(() -> service.loadUserByUsername("ausente@teste.com"))
+                .isInstanceOf(UsernameNotFoundException.class).hasMessage("User not found!");
     }
 }
