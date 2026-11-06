@@ -10,6 +10,7 @@ import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioReposi
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
 import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
+import br.ifsp.edu.scl.patrocinioesportivo.security.user.Role;
 import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
@@ -181,5 +182,16 @@ class MatheusMutationTest {
         when(origem.getAuthenticationManager()).thenReturn(manager);
         var config = new ApplicationConfig(mock(UserRepository.class));
         assertThat(config.authenticationManager(origem)).isSameAs(manager);
+    }
+
+    @Test
+    void DeveBuscarUsuarioPeloEmail() {
+        var repository = mock(UserRepository.class);
+        var usuario = usuario(Role.USER);
+        when(repository.findByEmail(usuario.getEmail())).thenReturn(Optional.of(usuario));
+        var service = new ApplicationConfig(repository).userDetailsService();
+        assertThat(service).isNotNull();
+        assertThat(service.loadUserByUsername(usuario.getEmail())).isSameAs(usuario);
+        verify(repository).findByEmail(usuario.getEmail());
     }
 }
