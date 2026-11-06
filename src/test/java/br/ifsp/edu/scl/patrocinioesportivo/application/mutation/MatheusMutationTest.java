@@ -9,6 +9,8 @@ import br.ifsp.edu.scl.patrocinioesportivo.model.*;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.ContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.repository.jdbc.JdbcContratoDePatrocinioRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.security.auth.AuthenticationInfoService;
+import br.ifsp.edu.scl.patrocinioesportivo.security.config.ApplicationConfig;
+import br.ifsp.edu.scl.patrocinioesportivo.security.user.UserRepository;
 import br.ifsp.edu.scl.patrocinioesportivo.service.*;
 import org.junit.jupiter.api.Tag;
 import org.junit.jupiter.api.Test;
@@ -16,6 +18,8 @@ import org.mockito.ArgumentCaptor;
 import org.springframework.core.MethodParameter;
 import org.springframework.http.HttpStatus;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.security.authentication.AuthenticationManager;
+import org.springframework.security.config.annotation.authentication.configuration.AuthenticationConfiguration;
 import org.springframework.validation.BeanPropertyBindingResult;
 import org.springframework.validation.FieldError;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -168,5 +172,14 @@ class MatheusMutationTest {
         assertThat(resposta.getBody()).isNotNull();
         assertThat(resposta.getBody().message())
                 .isEqualTo("meta: deve ser positiva; valor: deve ser positivo");
+    }
+
+    @Test
+    void DeveRetornarOAuthenticationManagerConfigurado() throws Exception {
+        var origem = mock(AuthenticationConfiguration.class);
+        var manager = mock(AuthenticationManager.class);
+        when(origem.getAuthenticationManager()).thenReturn(manager);
+        var config = new ApplicationConfig(mock(UserRepository.class));
+        assertThat(config.authenticationManager(origem)).isSameAs(manager);
     }
 }
